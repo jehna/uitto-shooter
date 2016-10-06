@@ -7,5 +7,8 @@
   "dependencies": {
     "createjs-easeljs": "^0.8.2",
     "meteor-node-stubs": "~0.2.0"
+  },
+  "devDependencies": {
+    "box2dweb": "^2.1.0-b"
   }
 }
