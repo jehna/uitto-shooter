@@ -2,6 +2,7 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 
 import { Players } from '../imports/api/players'
+import { Bullets } from '../imports/api/bullets';
 import { randomHex } from '../imports/helpers'
 import './main.html';
 require('createjs-easeljs');
@@ -15,6 +16,7 @@ Template.body.onCreated(() => {
     const ctx = canvas.getContext('2d');
 
     const players = {};
+    const bullets = {};
 
     function render() {
       stage.update();
@@ -59,7 +61,7 @@ Template.body.onCreated(() => {
 
     window.addEventListener('keydown', (e) => {
       if (e.which === Input.keys.space) {
-        console.log("pew!");
+        Meteor.call('shoot', myID);
       }
     });
 
@@ -106,6 +108,22 @@ Template.body.onCreated(() => {
       }
     }
 
+    class Bullet {
+      constructor(data) {
+        this.sprite = new createjs.Shape();
+        this.sprite.graphics.beginFill(data.color).drawCircle(0, 0, 5);
+        stage.addChild(this.sprite);
+
+        this.setData(data);
+      }
+
+      setData(data) {
+        this.data = data;
+        this.sprite.x = data.x;
+        this.sprite.y = data.y;
+      }
+    }
+
     Players.find({}).observe({
       addedAt: function(data, idx) {
         players[idx] = new Player(data);
@@ -114,6 +132,20 @@ Template.body.onCreated(() => {
       changedAt: function(data, _, idx) {
         players[idx].setData(data);
         render();
+      }
+    });
+
+    Bullets.find({}).observe({
+      addedAt: function(data, idx) {
+        bullets[idx] = new Bullet(data);
+        render();
+      },
+      changedAt: function(data, _, idx) {
+        bullets[idx].setData(data);
+        render();
+      },
+      removedAt: function(_, idx) {
+        stage.removeChild(bullets[idx].sprite);
       }
     });
   }, 0);
