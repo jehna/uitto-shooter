@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 const Box2D = require('box2dweb');
 import { objByUserData } from './game.js';
-import { players } from './game.js'
 
 export const physics = new Box2D.Dynamics.b2World(
   new Box2D.Common.Math.b2Vec2(0, 0),     //gravity
@@ -38,9 +37,3 @@ physics.SetContactListener({
   PreSolve(contact, oldManifold) {
   }
 });
-
-Meteor.setInterval(() => {
-  Object.keys(players).map(key => players[key]).forEach((player) => {
-    player.fixedUpdate();
-  });
-}, 1000/30);

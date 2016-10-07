@@ -104,7 +104,7 @@ Template.body.onCreated(() => {
         this.data = data;
         this.sprite.x = data.x;
         this.sprite.y = data.y;
-        this.sprite.rotation = data.rotation;
+        this.sprite.rotation = data.r * 180 / Math.PI;
       }
     }
 
