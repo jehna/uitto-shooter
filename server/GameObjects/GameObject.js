@@ -32,7 +32,7 @@ export default class GameObject {
   updateModel() {
     const pos = this.body.GetPosition();
     const r = this.body.GetTransform().GetAngle();
-    this.Model.update({_id: this.id}, {$set: {y: pos.x, x: pos.y, r:r }});
+    this.Model.update({_id: this.id}, {$set: {x: pos.x, y: pos.y, r:r }});
   }
 }
 

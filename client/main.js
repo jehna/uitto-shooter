@@ -27,45 +27,6 @@ Template.body.onCreated(() => {
       Meteor.call('createPlayer', myID)
     }
 
-    function move(x, y, r) {
-      Meteor.call('move', x, y, r, myID);
-    }
-
-    setInterval(function updatePhysics() {
-      var amountX = 0;
-      var amountY = 0;
-      var amountRot = 0;
-
-      if (Input.getKeyDown(Input.keys.w)) {
-        amountY--;
-      } else if (Input.getKeyDown(Input.keys.s)) {
-        amountY++;
-      }
-
-      if (Input.getKeyDown(Input.keys.a)) {
-        amountX--;
-      } else if (Input.getKeyDown(Input.keys.d)) {
-        amountX++;
-      }
-
-      if (Input.getKeyDown(Input.keys.left)) {
-        amountRot--;
-      } else if (Input.getKeyDown(Input.keys.right)) {
-        amountRot++;
-      }
-
-      if (amountX || amountY || amountRot) {
-        move(amountX, amountY, amountRot);
-      }
-    }, 1000 / 60);
-
-    window.addEventListener('keydown', (e) => {
-      if (e.which === Input.keys.space) {
-        Meteor.call('shoot', myID);
-      }
-    });
-
-
     const Input = {
       keysDown: {},
       keys: {
@@ -83,6 +44,41 @@ Template.body.onCreated(() => {
         return Input.keysDown[key];
       }
     }
+
+    const currMove = {x: 0, y: 0, r: 0};
+    function move(key, x, y, r) {
+      let isDown = false;
+      window.addEventListener('keydown', (e) => {
+        if (e.which !== key || isDown) return;
+        isDown = true;
+        if(x) currMove.x = x;
+        if(y) currMove.y = y;
+        if(r) currMove.r = r;
+        Meteor.call('move', currMove.x, currMove.y, currMove.r, myID);
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.which !== key) return;
+        isDown = false;
+        if(x) currMove.x = 0;
+        if(y) currMove.y = 0;
+        if(r) currMove.r = 0;
+        Meteor.call('move', currMove.x, currMove.y, currMove.r, myID);
+      });
+    }
+
+    move(Input.keys.w, 0, -1, 0);
+    move(Input.keys.s, 0, 1, 0);
+    move(Input.keys.a, 1, 0, 0);
+    move(Input.keys.d, -1, 0, 0);
+    move(Input.keys.left, 0, 0, 1);
+    move(Input.keys.right, 0, 0, -1);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.which === Input.keys.space) {
+        Meteor.call('shoot', myID);
+      }
+    });
 
     window.addEventListener('keydown', (e) => {
       Input.keysDown[e.which] = true;
@@ -104,7 +100,7 @@ Template.body.onCreated(() => {
         this.data = data;
         this.sprite.x = data.x;
         this.sprite.y = data.y;
-        this.sprite.rotation = data.r * 180 / Math.PI;
+        this.sprite.rotation = data.r * -180 / Math.PI;
       }
     }
 
