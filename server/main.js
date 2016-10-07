@@ -33,7 +33,6 @@ Meteor.startup(() => {
       const shooterPos = shooter.body.GetPosition();
       const shooterRot = shooter.body.GetTransform().GetAngle() / Math.PI * 180;
       bullets[bulletID] = new Bullet(bulletID, shooter);
-      Bullets.insert({_id: bulletID, x:shooterPos.x, y: shooterPos.y, color: '#' + randomHex(6)})
     },
     createPlayer(idx) {
       Players.insert({_id: idx, x:100, y: 100, rotation: 0, color: '#' + randomHex(6)})
@@ -79,11 +78,11 @@ Meteor.startup(() => {
   Meteor.setInterval(() => {
     physics.Step(
       1 / 60,   //frame-rate
-      10,       //velocity iterations
-      10        //position iterations
+      1,       //velocity iterations
+      1        //position iterations
     );
     physics.ClearForces();
-  }, 1000/60);
+  }, 1000/30);
 
   Meteor.setInterval(() => {
     Object.keys(players).map(key => players[key]).forEach((player) => {
@@ -139,19 +138,23 @@ Meteor.startup(() => {
 
       const r = shooter.body.GetTransform().GetAngle() / Math.PI * 180;
       const [nx, ny] = rotate(0, 0, 0, -1, -r);
-      const direction = new Box2D.Common.Math.b2Vec2(ny * 6000, nx * 6000)
+      const direction = new Box2D.Common.Math.b2Vec2(ny, nx)
 
       var bodyDef = new Box2D.Dynamics.b2BodyDef();
       bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
-      const bpos = shooter.body.GetPosition();
-      bpos.x += ny * 35;
-      bpos.y += nx * 35;
-      bodyDef.position = bpos;
+
+      const bPos = direction.Copy()
+      bPos.Normalize();
+      bPos.Multiply(50);
+      const ppos = shooter.body.GetPosition();
+      ppos.Add(bPos)
+      bodyDef.position = ppos;
+
       var shape = new Box2D.Collision.Shapes.b2CircleShape(5);
       const fixture = new Box2D.Dynamics.b2FixtureDef();
-      fixture.density = 1.0;
-      fixture.friction = 1.0;
-      fixture.restitution = 0;
+      fixture.density = 0.1;
+      fixture.friction = 0.7;
+      fixture.restitution = 0.05;
       fixture.shape = shape;
 
       this.body = physics.CreateBody(bodyDef);
@@ -159,10 +162,15 @@ Meteor.startup(() => {
       this.body.CreateFixture(fixture);
       this.body.SetBullet(true);
       this.body.SetFixedRotation(false);
+      this.body.ResetMassData()
 
       this.body.SetAwake(true)
-      this.body.SetLinearVelocity(direction)
+      this.body.SetLinearDamping(-1.0)
+      direction.Normalize()
+      direction.Multiply(1000)
+      this.body.ApplyImpulse(direction, shooter.body.GetPosition())
 
+      Bullets.insert({_id: id, x:ppos.y, y: ppos.x, color: '#' + randomHex(6)})
       this.alive = true;
       Meteor.setTimeout(() => {
         if (this && this.alive) {

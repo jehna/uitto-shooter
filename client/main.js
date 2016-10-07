@@ -126,26 +126,26 @@ Template.body.onCreated(() => {
 
     Players.find({}).observe({
       addedAt: function(data, idx) {
-        players[idx] = new Player(data);
+        players[data._id] = new Player(data);
         render();
       },
       changedAt: function(data, _, idx) {
-        players[idx].setData(data);
+        players[data._id].setData(data);
         render();
       }
     });
 
     Bullets.find({}).observe({
-      addedAt: function(data, idx) {
-        bullets[idx] = new Bullet(data);
+      added: function(data) {
+        bullets[data._id] = new Bullet(data);
         render();
       },
-      changedAt: function(data, _, idx) {
-        bullets[idx].setData(data);
+      changed: function(data, _) {
+        bullets[data._id].setData(data);
         render();
       },
-      removedAt: function(_, idx) {
-        stage.removeChild(bullets[idx].sprite);
+      removed: function(data) {
+        stage.removeChild(bullets[data._id].sprite);
       }
     });
   }, 0);
