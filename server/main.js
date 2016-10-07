@@ -2,6 +2,9 @@ import { Meteor } from 'meteor/meteor';
 import { Players } from '../imports/api/players.js';
 import { Bullets } from '../imports/api/bullets.js';
 import { randomHex } from '../imports/helpers'
+import { physics } from './physics.js'
+import { players } from './game.js'
+import Player from './GameObjects/Player.js';
 const Box2D = require('box2dweb');
 
 const speed = 100;
@@ -9,7 +12,6 @@ const speed = 100;
 
 Meteor.startup(() => {
 
-  const players = {};
   const bullets = {};
   const removeBodies = [];
 
@@ -40,97 +42,12 @@ Meteor.startup(() => {
     }
   });
 
-  // PHYSICS
-  const physics = new Box2D.Dynamics.b2World(
-    new Box2D.Common.Math.b2Vec2(0, 0),     //gravity
-    true                                     //allow sleep
-  );
-
-  function objByUserData(d) {
-    switch(d.type) {
-      case 'bullet':
-        return bullets[d.id];
-      case 'player':
-        return players[d.id];
-    }
-  }
-
-  physics.SetContactListener({
-    BeginContact(contact) {
-      const A = objByUserData(contact.GetFixtureA().GetBody().GetUserData());
-      const B = objByUserData(contact.GetFixtureB().GetBody().GetUserData());
-
-      if (A && A.beginContact) {
-        A.beginContact(B);
-      }
-      if (B && B.beginContact) {
-        B.beginContact(A);
-      }
-    },
-    EndContact(contact) {
-    },
-    PostSolve(contact, impulse) {
-    },
-    PreSolve(contact, oldManifold) {
-    }
-  })
 
   Meteor.setInterval(() => {
-    physics.Step(
-      1 / 60,   //frame-rate
-      1,       //velocity iterations
-      1        //position iterations
-    );
-    physics.ClearForces();
-  }, 1000/30);
-
-  Meteor.setInterval(() => {
-    Object.keys(players).map(key => players[key]).forEach((player) => {
-      player.fixedUpdate();
-    });
     Object.keys(bullets).map(key => bullets[key]).forEach((bullet) => {
       bullet.fixedUpdate();
     });
   }, 1000/30);
-
-
-  class Player {
-    constructor(id) {
-      this.id = id;
-      var bodyDef = new Box2D.Dynamics.b2BodyDef();
-      bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
-      bodyDef.position.x = 300;
-      bodyDef.position.y = 300;
-      var shape = new Box2D.Collision.Shapes.b2PolygonShape();
-      shape.SetAsBox(
-        15,
-        15
-      );
-      const fixture = new Box2D.Dynamics.b2FixtureDef();
-      fixture.density = 0.0;
-      fixture.friction = 1.0;
-      fixture.restitution = 0;
-      fixture.shape = shape;
-      this.body = physics.CreateBody(bodyDef);
-      this.body.SetUserData({ type: 'player', id: id })
-      this.body.CreateFixture(fixture);
-      this.body.SetLinearDamping(10)
-      this.body.SetAngularDamping(10)
-    }
-
-    fixedUpdate() {
-      if (this.body.IsAwake()) {
-        this.update();
-        //this.body.SetAwake(false);
-      }
-    }
-
-    update() {
-      const pos = this.body.GetPosition();
-      const r = this.body.GetTransform().GetAngle();
-      Players.update({_id: this.id}, {$set: {y: pos.x, x: pos.y, rotation: r/Math.PI*180 }})
-    }
-  }
 
   class Bullet {
     constructor(id, shooter) {
@@ -216,12 +133,6 @@ Meteor.startup(() => {
       delete bullets[this.id];
     }
   }
-
-  Players.find({}).fetch().forEach((p) => {
-    players[p._id] = new Player(p._id);
-    players[p._id].body.SetPosition(new Box2D.Common.Math.b2Vec2(p.y, p.x));
-    players[p._id].body.SetAngle(Math.PI/180*p.rotation);
-  });
 
   Meteor.setInterval(() => {
     if (removeBodies.length) {
