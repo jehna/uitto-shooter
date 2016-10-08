@@ -4,9 +4,10 @@ import { physics } from '/imports/physics.js'
 import { randomHex } from '/imports/helpers'
 
 export default class GameObject {
-  static create(Model, id) {
+  static create(Model, id, addProps = {}) {
     if (Meteor.isClient) return;
-    Model.insert({_id: id, x:-100, y: -100, r: 0, color: '#' + randomHex(6)})
+    let model = Object.assign({_id: id, x:-100, y: -100, r: 0, color: '#' + randomHex(6)}, addProps);
+    Model.insert(model)
     new this(id);
   }
 

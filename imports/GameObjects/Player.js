@@ -13,8 +13,7 @@ export default class Player extends GameObject {
 
   static create(id) {
     if (Meteor.isClient) return;
-    super.create(Players, id);
-    Players.update({_id: this.id}, {$set: {kills: 0, deaths: 0}});
+    super.create(Players, id, {kills: 0, deaths: 0});
   }
 
   constructor(id, position = new b2Vec2(30, 30), angle = 0) {
