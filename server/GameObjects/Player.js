@@ -7,11 +7,13 @@ const { b2Vec2 } = Common.Math;
 import { BodyDef, RectShape, FixtureFn } from '../box2dBuilders';
 import { rotate } from '../../imports/helpers.js'
 import { physics } from '../physics.js'
+import { gameObjects } from '../game.js'
 
 export default class Player extends GameObject {
 
   static create(id) {
     super.create(Players, id);
+    Players.update({_id: this.id}, {$set: {kills: 0, deaths: 0}});
   }
 
   constructor(id, position = new b2Vec2(30, 30), angle = 0) {
@@ -22,8 +24,8 @@ export default class Player extends GameObject {
       FixtureFn(0, 1, 0),
       Players
     );
-
     this.speed = 80;
+    this.rotateSpeed = 3;
   }
 
   fixedUpdate() {
@@ -40,7 +42,7 @@ export default class Player extends GameObject {
   setVelocityAndAngle(velocity, angle) {
     this.body.SetAwake(true);
     this.velocity = velocity;
-    this.body.SetAngularVelocity(angle);
+    this.body.SetAngularVelocity(angle * this.rotateSpeed);
   }
 
   shoot() {
@@ -56,12 +58,29 @@ export default class Player extends GameObject {
     const cb = (fixture, point, normal, fraction) => hits.push({fixture, point, normal, fraction});
     physics.RayCast(cb, from, to);
     const hit = hits.sort((a,b) => b.fraction - a.fraction).pop();
-    const hitModel = Hits.insert({x: hit.point.x, y: hit.point.y}, (_, id) => {
-      // TODO: An ybetter way to send event to client?
-      Meteor.setTimeout(() => {
-        Hits.remove({_id: id});
-      }, 1000);
-    });
+    if (hit) {
+      const hitModel = Hits.insert({x: hit.point.x, y: hit.point.y}, (_, id) => {
+        // TODO: An ybetter way to send event to client?
+        Meteor.setTimeout(() => {
+          Hits.remove({_id: id});
+        }, 1000);
+      });
+
+      // Did we hit another player?
+      const hitUserData = hit.fixture.GetBody().GetUserData();
+      if (hitUserData.type === 'Player') {
+        const hitPlayer = gameObjects.Player[hitUserData.id];
+        hitPlayer.hit();
+        Players.update({_id: this.id}, {$inc: {kills: 1 }});
+      }
+    }
+  }
+
+  hit() {
+    Players.update({_id: this.id}, {$inc: {deaths: 1 }});
+    this.body.SetPosition(new b2Vec2(24, 24));
+    this.body.SetAngle(Math.PI);
+    this.updateModel();
   }
 }
 

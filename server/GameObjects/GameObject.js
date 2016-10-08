@@ -15,7 +15,7 @@ export default class GameObject {
     this.shape = shape;
     this.fixture = fixtureFn(shape);
     this.body = physics.CreateBody(this.bodyDef);
-    this.body.SetUserData({ id: id });
+    this.body.SetUserData({ id: id, type: this.type });
     this.body.CreateFixture(this.fixture);
     gameObjects[this.type] = gameObjects[this.type] || {}
     gameObjects[this.type][id] = this;
