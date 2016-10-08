@@ -50,9 +50,9 @@ export default class Player extends GameObject {
     const [nx, ny] = rotate(0, 0, -1, 0, this.body.GetAngle());
     const from = new b2Vec2(nx, ny)
     from.Normalize();
-    from.Multiply(8);
+    from.Multiply(1);
     const to = from.Copy();
-    to.Multiply(20);
+    to.Multiply(80);
     to.Add(this.body.GetPosition());
     from.Add(this.body.GetPosition());
     const hits = [];

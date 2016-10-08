@@ -249,6 +249,8 @@ Template.body.onCreated(() => {
 
     function UpdateVisibility(sprite, alpha) {
       Meteor.setInterval(() => {
+        if (!players[myID]) return;
+        
         const from = new b2Vec2(sprite.x + 8, sprite.y + 8);
         const to = new b2Vec2(players[myID].data.x, players[myID].data.y);
         const dist = to.Copy();
