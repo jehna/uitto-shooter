@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Players } from '../imports/api/players.js';
-import { Bullets } from '../imports/api/bullets.js';
+import { Hits } from '../imports/api/hits.js';
 import { randomHex } from '../imports/helpers'
 import { physics } from './physics.js'
 import { gameObjects } from './game.js'
@@ -16,7 +16,7 @@ Meteor.startup(() => {
     },
     shoot(idx) {
       const shooter = gameObjects.Player[idx];
-      console.log("pew");
+      shooter.shoot();
     },
     createPlayer(idx) {
       Player.create(idx);

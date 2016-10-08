@@ -1,9 +1,12 @@
+import { Meteor } from 'meteor/meteor';
 import { Players } from '../../imports/api/players.js';
+import { Hits } from '../../imports/api/hits.js';
 import GameObject from './GameObject.js'
 import { Common } from 'box2dweb';
 const { b2Vec2 } = Common.Math;
 import { BodyDef, RectShape, FixtureFn } from '../box2dBuilders';
 import { rotate } from '../../imports/helpers.js'
+import { physics } from '../physics.js'
 
 export default class Player extends GameObject {
 
@@ -38,6 +41,27 @@ export default class Player extends GameObject {
     this.body.SetAwake(true);
     this.velocity = velocity;
     this.body.SetAngularVelocity(angle);
+  }
+
+  shoot() {
+    const [nx, ny] = rotate(0, 0, -1, 0, this.body.GetAngle());
+    const from = new b2Vec2(nx, ny)
+    from.Normalize();
+    from.Multiply(8);
+    const to = from.Copy();
+    to.Multiply(20);
+    to.Add(this.body.GetPosition());
+    from.Add(this.body.GetPosition());
+    const hits = [];
+    const cb = (fixture, point, normal, fraction) => hits.push({fixture, point, normal, fraction});
+    physics.RayCast(cb, from, to);
+    const hit = hits.sort((a,b) => b.fraction - a.fraction).pop();
+    const hitModel = Hits.insert({x: hit.point.x, y: hit.point.y}, (_, id) => {
+      // TODO: An ybetter way to send event to client?
+      Meteor.setTimeout(() => {
+        Hits.remove({_id: id});
+      }, 1000);
+    });
   }
 }
 

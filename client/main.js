@@ -2,7 +2,7 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 
 import { Players } from '../imports/api/players'
-import { Bullets } from '../imports/api/bullets';
+import { Hits } from '../imports/api/hits';
 import { randomHex } from '../imports/helpers'
 import { map1 } from '../imports/maps'
 import './main.html';
@@ -17,7 +17,6 @@ Template.body.onCreated(() => {
     const ctx = canvas.getContext('2d');
 
     const players = {};
-    const bullets = {};
 
     function render() {
       stage.update();
@@ -105,13 +104,18 @@ Template.body.onCreated(() => {
       }
     }
 
-    class Bullet {
+    class Hit {
       constructor(data) {
         this.sprite = new createjs.Shape();
-        this.sprite.graphics.beginFill(data.color).drawCircle(0, 0, 5);
+        this.sprite.graphics.beginFill('#FF0000').drawCircle(0, 0, 2);
         stage.addChild(this.sprite);
+        setTimeout(() => {
+          stage.removeChild(this.sprite);
+          render();
+        }, 1000)
 
         this.setData(data);
+        render();
       }
 
       setData(data) {
@@ -132,17 +136,9 @@ Template.body.onCreated(() => {
       }
     });
 
-    Bullets.find({}).observe({
+    Hits.find({}).observe({
       added: function(data) {
-        bullets[data._id] = new Bullet(data);
-        render();
-      },
-      changed: function(data, _) {
-        bullets[data._id].setData(data);
-        render();
-      },
-      removed: function(data) {
-        stage.removeChild(bullets[data._id].sprite);
+        new Hit(data);
       }
     });
 
