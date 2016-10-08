@@ -10,16 +10,19 @@ require('createjs-easeljs');
 
 Template.body.onCreated(() => {
   setTimeout(() => {
-    const stage = new createjs.Stage('canvas');
+    const wholeSstage = new createjs.Stage('canvas');
+    const stage = new createjs.Container();
+    wholeSstage.addChild(stage);
     const canvas = document.getElementById('canvas');
     canvas.width = 450;
-    canvas.height = 400;
+    canvas.height = 200;
     const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
 
     const players = {};
 
     function render() {
-      stage.update();
+      wholeSstage.update();
     }
 
     const myID = localStorage.myID || (localStorage.myID = randomHex(50))
@@ -113,6 +116,11 @@ Template.body.onCreated(() => {
         this.sprite.x = data.x;
         this.sprite.y = data.y;
         this.sprite.rotation = data.r * -180 / Math.PI;
+
+        if (this.data._id === myID) {
+          stage.x = -data.x + canvas.width / 2;
+          stage.y = -data.y + canvas.height / 2;
+        }
       }
     }
 
