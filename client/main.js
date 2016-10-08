@@ -4,6 +4,7 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { Players } from '../imports/api/players'
 import { Bullets } from '../imports/api/bullets';
 import { randomHex } from '../imports/helpers'
+import { map1 } from '../imports/maps'
 import './main.html';
 require('createjs-easeljs');
 
@@ -11,8 +12,8 @@ Template.body.onCreated(() => {
   setTimeout(() => {
     const stage = new createjs.Stage('canvas');
     const canvas = document.getElementById('canvas');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = 450;
+    canvas.height = 400;
     const ctx = canvas.getContext('2d');
 
     const players = {};
@@ -90,7 +91,7 @@ Template.body.onCreated(() => {
     class Player {
       constructor(data) {
         this.sprite = new createjs.Shape();
-        this.sprite.graphics.beginFill(data.color).drawRect(-15, -15, 30, 30);
+        this.sprite.graphics.beginFill(data.color).drawRect(-5, -5, 10, 10);
         stage.addChild(this.sprite);
 
         this.setData(data);
@@ -144,6 +145,32 @@ Template.body.onCreated(() => {
         stage.removeChild(bullets[data._id].sprite);
       }
     });
+
+    function LoadMap(map) {
+
+      const tiles = new createjs.SpriteSheet({
+        images: [map.spritesheet],
+        frames: {width: 16, height: 16, regX: 0, regY: 0},
+      });
+      if (!tiles.complete)
+      tiles.addEventListener("complete", render);
+
+      map.layouts.forEach((layout) => {
+        layout.forEach((row, y) => {
+          row.forEach((frame, x) => {
+            if (frame < 0) return;
+            const tile = new createjs.Sprite(tiles);
+            tile.gotoAndStop(frame);
+            tile.x = 16 * x;
+            tile.y = 16 * y;
+            stage.addChild(tile);
+          });
+        });
+      });
+    }
+
+    LoadMap(map1);
+
   }, 0);
 });
 

@@ -11,16 +11,16 @@ export default class Player extends GameObject {
     super.create(Players, id);
   }
 
-  constructor(id, position = new b2Vec2(300, 300), angle = 0) {
+  constructor(id, position = new b2Vec2(30, 30), angle = 0) {
     super(
       id,
       BodyDef(position, angle, 10, 0),
-      RectShape(15, 15),
+      RectShape(5, 5),
       FixtureFn(0, 1, 0),
       Players
     );
 
-    this.speed = 100;
+    this.speed = 80;
   }
 
   fixedUpdate() {
