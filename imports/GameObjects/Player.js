@@ -4,10 +4,15 @@ import { Hits } from '/imports/api/hits.js';
 import GameObject from './GameObject.js'
 import { Common } from 'box2dweb';
 const { b2Vec2 } = Common.Math;
-import { BodyDef, RectShape, FixtureFn } from '/imports/box2dBuilders';
+import { BodyDef, RectShape, CircleShape, FixtureFn } from '/imports/box2dBuilders';
 import { rotate } from '/imports/helpers.js'
 import { physics } from '/imports/physics.js'
 import { gameObjects } from '/imports/game.js'
+if (Meteor.isClient) {
+  import { stage, canvas } from '/client/stage.js';
+  import { myID } from '/client/currentUser.js';
+  import { updateVisibility } from '/client/helpers'
+}
 
 export default class Player extends GameObject {
 
@@ -20,12 +25,37 @@ export default class Player extends GameObject {
     super(
       id,
       BodyDef(position, angle, 10, 0),
-      RectShape(5, 5),
+      CircleShape(7),
       FixtureFn(0, 1, 0),
       Players
     );
     this.speed = 80;
     this.rotateSpeed = 3;
+
+    if (Meteor.isClient) {
+      const spritesheet = new createjs.SpriteSheet({
+        images: ['/player.png'],
+        frames: {width: 14, height: 14, regX: 7, regY: 7},
+      });
+      this.sprite = new createjs.Sprite(spritesheet);
+      this.sprite.gotoAndStop(1);
+      stage.addChild(this.sprite);
+      if (id !== myID) {
+        updateVisibility(this.sprite, 0.0);
+      }
+    }
+  }
+
+  setData(data) {
+    this.data = data;
+    this.sprite.x = data.x;
+    this.sprite.y = data.y;
+    this.sprite.rotation = data.r * -180 / Math.PI;
+
+    if (this.data._id === myID) {
+      stage.x = -data.x + canvas.width / 2;
+      stage.y = -data.y + canvas.height / 2;
+    }
   }
 
   fixedUpdate() {
@@ -47,20 +77,21 @@ export default class Player extends GameObject {
 
   shoot() {
     if (Meteor.isClient) return;
-    const [nx, ny] = rotate(0, 0, -1, 0, this.body.GetAngle());
+    const [nx, ny] = rotate(0, 0, 0, 1, this.body.GetAngle());
     const from = new b2Vec2(nx, ny)
     from.Normalize();
     from.Multiply(1);
     const to = from.Copy();
-    to.Multiply(80);
-    to.Add(this.body.GetPosition());
-    from.Add(this.body.GetPosition());
+    to.Multiply(300);
+    const currPos = this.body.GetPosition();
+    to.Add(currPos);
+    from.Add(currPos);
     const hits = [];
     const cb = (fixture, point, normal, fraction) => hits.push({fixture, point, normal, fraction});
     physics.RayCast(cb, from, to);
     const hit = hits.sort((a,b) => b.fraction - a.fraction).pop();
     if (hit) {
-      const hitModel = Hits.insert({x: hit.point.x, y: hit.point.y}, (_, id) => {
+      const hitModel = Hits.insert({x: hit.point.x, y: hit.point.y, shooter: { x: currPos.x, y: currPos.y }}, (_, id) => {
         // TODO: An ybetter way to send event to client?
         Meteor.setTimeout(() => {
           Hits.remove({_id: id});

@@ -1,39 +1,23 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
-
 import { Players } from '../imports/api/players'
 import { Hits } from '../imports/api/hits';
-import { randomHex } from '../imports/helpers'
 import Wall from '/imports/GameObjects/Wall'
+import Player from '/imports/GameObjects/Player'
 import { physics } from '/imports/physics.js'
+import { gameObjects } from '/imports/game.js'
 import { map1 } from '../imports/maps'
-
+import { playSoundAt } from '/client/sounds'
+import { stage, render, canvas, ctx } from '/client/stage.js';
+import { myID, getCurrentUser } from '/client/currentUser.js';
 import { Common } from 'box2dweb';
+import { updateVisibility } from '/client/helpers'
 const { b2Vec2 } = Common.Math;
 import './main.html';
 require('createjs-easeljs');
 
 Template.body.onCreated(() => {
   setTimeout(() => {
-    const wholeSstage = new createjs.Stage('canvas');
-    const stage = new createjs.Container();
-    wholeSstage.addChild(stage);
-    const canvas = document.getElementById('canvas');
-    canvas.width = 450;
-    canvas.height = 200;
-    const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-
-    const players = {};
-
-    function render() {
-      wholeSstage.update();
-    }
-
-    const myID = localStorage.myID || (localStorage.myID = randomHex(50))
-    if (Players.find({_id: myID}).count() === 0) {
-      Meteor.call('createPlayer', myID)
-    }
 
     const Input = {
       keysDown: {},
@@ -76,10 +60,10 @@ Template.body.onCreated(() => {
       });
     }
 
-    move(Input.keys.w, 0, -1, 0);
-    move(Input.keys.s, 0, 1, 0);
-    move(Input.keys.a, 1, 0, 0);
-    move(Input.keys.d, -1, 0, 0);
+    move(Input.keys.w, 1, 0, 0);
+    move(Input.keys.s, -1, 0, 0);
+    move(Input.keys.a, 0, 1, 0);
+    move(Input.keys.d, 0, -1, 0);
     move(Input.keys.left, 0, 0, 1);
     move(Input.keys.right, 0, 0, -1);
 
@@ -107,30 +91,6 @@ Template.body.onCreated(() => {
       hideStats();
     });
 
-    class Player {
-      constructor(data) {
-        this.sprite = new createjs.Shape();
-        this.sprite.graphics.beginFill(data.color).drawRect(-5, -5, 10, 10);
-        stage.addChild(this.sprite);
-        if (data._id !== myID) {
-          UpdateVisibility(this.sprite, 0.0);
-        }
-        this.setData(data);
-      }
-
-      setData(data) {
-        this.data = data;
-        this.sprite.x = data.x;
-        this.sprite.y = data.y;
-        this.sprite.rotation = data.r * -180 / Math.PI;
-
-        if (this.data._id === myID) {
-          stage.x = -data.x + canvas.width / 2;
-          stage.y = -data.y + canvas.height / 2;
-        }
-      }
-    }
-
     class Hit {
       constructor(data) {
         this.sprite = new createjs.Shape();
@@ -139,7 +99,8 @@ Template.body.onCreated(() => {
         setTimeout(() => {
           stage.removeChild(this.sprite);
           render();
-        }, 1000)
+        }, 1000);
+        playSoundAt(data.shooter.x, data.shooter.y, 'gunshot');
 
         this.setData(data);
         render();
@@ -154,11 +115,12 @@ Template.body.onCreated(() => {
 
     Players.find({}).observe({
       addedAt: function(data, idx) {
-        players[data._id] = new Player(data);
+        new Player(data._id);
+        gameObjects.Player[data._id].setData(data);
         render();
       },
       changedAt: function(data, _, idx) {
-        players[data._id].setData(data);
+        gameObjects.Player[data._id].setData(data);
         render();
       }
     });
@@ -188,7 +150,7 @@ Template.body.onCreated(() => {
             tile.y = 16 * y;
             stage.addChild(tile);
 
-            UpdateVisibility(tile, 0.7);
+            updateVisibility(tile, 0.7);
           });
         });
       });
@@ -229,7 +191,7 @@ Template.body.onCreated(() => {
       statsText += leftpad('',34,'=') + '\n';
       statsText += '|' + leftpad('',32,' ') + '|\n';
       statsText += '| ' + rightpad('Player', 16, ' ') + leftpad('Kills', 7, ' ') + leftpad('Deaths', 7, ' ') + ('',28,' ') + '|\n';
-      Object.keys(players).map((key) => players[key]).forEach((player) => {
+      Object.keys(gameObjects.Player).map((key) => gameObjects.Player[key]).forEach((player) => {
         const playerName = player.data.color + (player.data._id === myID ? ' (you)' : '');
         statsText += '| ' + rightpad(playerName, 16, ' ') + leftpad(player.data.kills, 7, ' ') + leftpad(player.data.deaths, 7, ' ') + ('',28,' ') + '|\n';
       });
@@ -241,35 +203,6 @@ Template.body.onCreated(() => {
     function hideStats() {
       stats.text = '';
       render();
-    }
-
-
-
-
-
-    function UpdateVisibility(sprite, alpha) {
-      Meteor.setInterval(() => {
-        if (!players[myID]) return;
-        
-        const from = new b2Vec2(sprite.x + 8, sprite.y + 8);
-        const to = new b2Vec2(players[myID].data.x, players[myID].data.y);
-        const dist = to.Copy();
-        dist.Subtract(from);
-        if (dist.Length() > 70) {
-          sprite.alpha = alpha;
-          return;
-        }
-
-        const hits = [];
-        const cb = (fixture, point, normal, fraction) => hits.push({fixture, point, normal, fraction});
-        physics.RayCast(cb, from, to);
-        const hit = hits.sort((a,b) => b.fraction - a.fraction).pop();
-        if((hit && hit.fixture.GetBody().GetUserData().id !== myID)) {
-          sprite.alpha = alpha;
-        } else {
-          sprite.alpha = 1;
-        }
-      }, 1000 / 10);
     }
 
 

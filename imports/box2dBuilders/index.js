@@ -18,6 +18,10 @@ export function RectShape(width, height) {
   return shape;
 }
 
+export function CircleShape(redius) {
+  return new Collision.Shapes.b2CircleShape(redius);
+}
+
 export function FixtureFn(density = 0.5, friction = 0.5, restitution = 0.5) {
   return (shape) => {
     const fixture = new b2FixtureDef();
