@@ -4,7 +4,12 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { Players } from '../imports/api/players'
 import { Hits } from '../imports/api/hits';
 import { randomHex } from '../imports/helpers'
+import Wall from '/imports/GameObjects/Wall'
+import { physics } from '/imports/physics.js'
 import { map1 } from '../imports/maps'
+
+import { Common } from 'box2dweb';
+const { b2Vec2 } = Common.Math;
 import './main.html';
 require('createjs-easeljs');
 
@@ -107,7 +112,9 @@ Template.body.onCreated(() => {
         this.sprite = new createjs.Shape();
         this.sprite.graphics.beginFill(data.color).drawRect(-5, -5, 10, 10);
         stage.addChild(this.sprite);
-
+        if (data._id !== myID) {
+          UpdateVisibility(this.sprite, 0.0);
+        }
         this.setData(data);
       }
 
@@ -180,6 +187,8 @@ Template.body.onCreated(() => {
             tile.x = 16 * x;
             tile.y = 16 * y;
             stage.addChild(tile);
+
+            UpdateVisibility(tile, 0.7);
           });
         });
       });
@@ -234,6 +243,32 @@ Template.body.onCreated(() => {
       render();
     }
 
+
+
+
+
+    function UpdateVisibility(sprite, alpha) {
+      Meteor.setInterval(() => {
+        const from = new b2Vec2(sprite.x + 8, sprite.y + 8);
+        const to = new b2Vec2(players[myID].data.x, players[myID].data.y);
+        const dist = to.Copy();
+        dist.Subtract(from);
+        if (dist.Length() > 70) {
+          sprite.alpha = alpha;
+          return;
+        }
+
+        const hits = [];
+        const cb = (fixture, point, normal, fraction) => hits.push({fixture, point, normal, fraction});
+        physics.RayCast(cb, from, to);
+        const hit = hits.sort((a,b) => b.fraction - a.fraction).pop();
+        if((hit && hit.fixture.GetBody().GetUserData().id !== myID)) {
+          sprite.alpha = alpha;
+        } else {
+          sprite.alpha = 1;
+        }
+      }, 1000 / 10);
+    }
 
 
   }, 0);
