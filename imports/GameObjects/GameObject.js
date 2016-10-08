@@ -1,9 +1,11 @@
-import { gameObjects } from '../game.js'
-import { physics } from '../physics.js'
-import { randomHex } from '../../imports/helpers'
+import { Meteor } from 'meteor/meteor';
+import { gameObjects } from '/imports/game.js'
+import { physics } from '/imports/physics.js'
+import { randomHex } from '/imports/helpers'
 
 export default class GameObject {
   static create(Model, id) {
+    if (Meteor.isClient) return;
     Model.insert({_id: id, x:-100, y: -100, r: 0, color: '#' + randomHex(6)})
     new this(id);
   }
@@ -30,7 +32,7 @@ export default class GameObject {
   }
 
   updateModel() {
-    if (!this.Model) return;
+    if (!this.Model || Meteor.isClient) return;
     const pos = this.body.GetPosition();
     const r = this.body.GetTransform().GetAngle();
     this.Model.update({_id: this.id}, {$set: {x: pos.x, y: pos.y, r:r }});
@@ -38,14 +40,16 @@ export default class GameObject {
 }
 
 // GC loop
-const removeBodies = [];
-Meteor.setInterval(() => {
-  if (removeBodies.length) {
-    do {
-      physics.DestroyBody(removeBodies.pop())
-    } while (removeBodies.length)
-  }
-}, 10000);
+if (Meteor.isServer) {
+  const removeBodies = [];
+  Meteor.setInterval(() => {
+    if (removeBodies.length) {
+      do {
+        physics.DestroyBody(removeBodies.pop())
+      } while (removeBodies.length)
+    }
+  }, 10000);
+}
 
 // FixedUpdate loop
 Meteor.setInterval(() => {

@@ -1,10 +1,12 @@
 import { Meteor } from 'meteor/meteor';
-import { Players } from '../imports/api/players.js';
-import { Hits } from '../imports/api/hits.js';
-import { randomHex } from '../imports/helpers'
-import { physics } from './physics.js'
-import { gameObjects } from './game.js'
-import Player from './GameObjects/Player.js';
+import { Players } from '/imports/api/players.js';
+import { Hits } from '/imports/api/hits.js';
+import { randomHex } from '/imports/helpers'
+import { physics } from '/imports/physics.js'
+import { gameObjects } from '/imports/game.js'
+import GameObject from '/imports/GameObjects/GameObject.js';
+import Player from '/imports/GameObjects/Player.js';
+import Wall from '/imports/GameObjects/Wall.js';
 const Box2D = require('box2dweb');
 
 Meteor.startup(() => {

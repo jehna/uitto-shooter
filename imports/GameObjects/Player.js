@@ -1,17 +1,18 @@
 import { Meteor } from 'meteor/meteor';
-import { Players } from '../../imports/api/players.js';
-import { Hits } from '../../imports/api/hits.js';
+import { Players } from '/imports/api/players.js';
+import { Hits } from '/imports/api/hits.js';
 import GameObject from './GameObject.js'
 import { Common } from 'box2dweb';
 const { b2Vec2 } = Common.Math;
-import { BodyDef, RectShape, FixtureFn } from '../box2dBuilders';
-import { rotate } from '../../imports/helpers.js'
-import { physics } from '../physics.js'
-import { gameObjects } from '../game.js'
+import { BodyDef, RectShape, FixtureFn } from '/imports/box2dBuilders';
+import { rotate } from '/imports/helpers.js'
+import { physics } from '/imports/physics.js'
+import { gameObjects } from '/imports/game.js'
 
 export default class Player extends GameObject {
 
   static create(id) {
+    if (Meteor.isClient) return;
     super.create(Players, id);
     Players.update({_id: this.id}, {$set: {kills: 0, deaths: 0}});
   }
@@ -30,7 +31,7 @@ export default class Player extends GameObject {
 
   fixedUpdate() {
     super.fixedUpdate();
-    if (this.body.IsAwake() && this.velocity) {
+    if (Meteor.isServer && this.body.IsAwake() && this.velocity) {
       const [nx, ny] = rotate(0, 0, this.velocity.x, this.velocity.y, this.body.GetAngle());
       const to = new b2Vec2(nx, ny)
       to.Normalize();
@@ -46,6 +47,7 @@ export default class Player extends GameObject {
   }
 
   shoot() {
+    if (Meteor.isClient) return;
     const [nx, ny] = rotate(0, 0, -1, 0, this.body.GetAngle());
     const from = new b2Vec2(nx, ny)
     from.Normalize();
@@ -77,6 +79,7 @@ export default class Player extends GameObject {
   }
 
   hit() {
+    if (Meteor.isClient) return;
     Players.update({_id: this.id}, {$inc: {deaths: 1 }});
     this.body.SetPosition(new b2Vec2(24, 24));
     this.body.SetAngle(Math.PI);
