@@ -3,17 +3,17 @@ import { getCurrentUser } from '/client/currentUser.js';
 import { physics } from '/imports/physics.js'
 import { Common } from 'box2dweb';
 import { myID } from '/client/currentUser.js';
+import { rotate } from '/imports/helpers.js'
 const { b2Vec2 } = Common.Math;
 
 export function updateVisibility(sprite, alpha) {
   Meteor.setInterval(() => {
-    if (!getCurrentUser()) return;
+
 
     const from = new b2Vec2(sprite.x + 8, sprite.y + 8);
     const to = new b2Vec2(getCurrentUser().data.x, getCurrentUser().data.y);
-    const dist = to.Copy();
-    dist.Subtract(from);
-    if (dist.Length() > 70) {
+
+    if (distanceToCurrentUser(from.x, from.y) > 70) {
       sprite.alpha = alpha;
       return;
     }
@@ -28,4 +28,23 @@ export function updateVisibility(sprite, alpha) {
       sprite.alpha = 1;
     }
   }, 1000 / 10);
+}
+
+export function distanceToCurrentUser(toX, toY) {
+  if (!getCurrentUser()) return 0;
+  const {x, y} = getCurrentUser().data;
+  const dist = new b2Vec2(x, y);
+  dist.Subtract(new b2Vec2(toX, toY));
+  return dist.Length();
+}
+
+export function panFromCurrentUser(x, y) {
+  const cu = getCurrentUser();
+  if (!cu) return 0;
+  const cuData = cu.data;
+  const myPos = new b2Vec2(x, y);
+  const cuPos = new b2Vec2(cuData.x, cuData.y);
+  myPos.Subtract(cuPos);
+  const [fx, fy] = rotate(0, 0, myPos.x, myPos.y, -cuData.r);
+  return -Math.min(0.7, Math.max(-0.7, fx / 100));
 }

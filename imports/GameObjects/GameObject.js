@@ -36,7 +36,7 @@ export default class GameObject {
     if (!this.Model || Meteor.isClient) return;
     const pos = this.body.GetPosition();
     const r = this.body.GetTransform().GetAngle();
-    this.Model.update({_id: this.id}, {$set: {x: pos.x, y: pos.y, r:r }});
+    this.Model.update({_id: this.id}, {$set: {x: pos.x, y: pos.y, r:r, v: this.velocity }});
   }
 }
 

@@ -1,5 +1,6 @@
 require('createjs-soundjs');
 import { getCurrentUser } from '/client/currentUser.js';
+import { distanceToCurrentUser, panFromCurrentUser } from '/client/helpers.js';
 import { Common } from 'box2dweb';
 const { b2Vec2 } = Common.Math;
 
@@ -14,9 +15,6 @@ createjs.Sound.registerSound('/sounds/walking.ogg', 'walking')
 const MAX_SOUND_DISTANCE = 100;
 export function playSoundAt(px, py, sound) {
   const s = createjs.Sound.play(sound);
-
-  const {x, y} = getCurrentUser().data;
-  const dist = new b2Vec2(x, y);
-  dist.Subtract(new b2Vec2(px, py));
-  s.volume = 1 - dist.Length() / MAX_SOUND_DISTANCE;
+  s.volume = 1 - distanceToCurrentUser(px, py) / MAX_SOUND_DISTANCE;
+  s.pan = panFromCurrentUser(px, py);
 }

@@ -10,8 +10,8 @@ import { physics } from '/imports/physics.js'
 import { gameObjects } from '/imports/game.js'
 if (Meteor.isClient) {
   import { stage, canvas } from '/client/stage.js';
-  import { myID } from '/client/currentUser.js';
-  import { updateVisibility } from '/client/helpers'
+  import { myID, getCurrentUser } from '/client/currentUser.js';
+  import { updateVisibility, distanceToCurrentUser, panFromCurrentUser } from '/client/helpers'
 }
 
 export default class Player extends GameObject {
@@ -37,6 +37,22 @@ export default class Player extends GameObject {
         images: ['/player.png'],
         frames: {width: 14, height: 14, regX: 7, regY: 7},
       });
+
+      const checkSoundLoaded = () => {
+        createjs.Sound.off("fileload", checkSoundLoaded);
+        if (createjs.Sound.loadComplete('walking')) {
+          this.walkingSound = createjs.Sound.play('walking');
+          this.walkingSound.loop = -1;
+          this.walkingSound.volume = 0.2;
+          this.walkingSound.paused = true;
+          return true;
+        } else {
+          createjs.Sound.on("fileload", checkSoundLoaded);
+          return false;
+        }
+      }
+      checkSoundLoaded();
+
       this.sprite = new createjs.Sprite(spritesheet);
       this.sprite.gotoAndStop(1);
       stage.addChild(this.sprite);
@@ -52,9 +68,21 @@ export default class Player extends GameObject {
     this.sprite.y = data.y;
     this.sprite.rotation = data.r * -180 / Math.PI;
 
+    const velocity = this.data.v && (this.data.v.x || this.data.v.y);
+    if (this.walkingSound && velocity && this.walkingSound.paused) {
+      this.walkingSound.paused = false;
+    } else if (this.walkingSound && !velocity && !this.walkingSound.paused) {
+      this.walkingSound.paused = true;
+    }
+
     if (this.data._id === myID) {
       stage.x = -data.x + canvas.width / 2;
       stage.y = -data.y + canvas.height / 2;
+    } else {
+      if (this.walkingSound) {
+        this.walkingSound.volume = 0.5 - distanceToCurrentUser(this.data.x, this.data.y) / 100 * 0.5;
+        this.walkingSound.pan = panFromCurrentUser(this.data.x, this.data.y);
+      }
     }
   }
 
