@@ -9,6 +9,7 @@ import { rotate } from '/imports/helpers.js'
 import { physics } from '/imports/physics.js'
 import { gameObjects } from '/imports/game.js'
 if (Meteor.isClient) {
+  import { onSoundLoaded } from '/client/sounds';
   import { stage, canvas } from '/client/stage.js';
   import { myID, getCurrentUser } from '/client/currentUser.js';
   import { updateVisibility, distanceToCurrentUser, panFromCurrentUser } from '/client/helpers'
@@ -38,20 +39,12 @@ export default class Player extends GameObject {
         frames: {width: 14, height: 14, regX: 7, regY: 7},
       });
 
-      const checkSoundLoaded = () => {
-        createjs.Sound.off("fileload", checkSoundLoaded);
-        if (createjs.Sound.loadComplete('walking')) {
-          this.walkingSound = createjs.Sound.play('walking');
-          this.walkingSound.loop = -1;
-          this.walkingSound.volume = 0.2;
-          this.walkingSound.paused = true;
-          return true;
-        } else {
-          createjs.Sound.on("fileload", checkSoundLoaded);
-          return false;
-        }
-      }
-      checkSoundLoaded();
+      onSoundLoaded('walking', () => {
+        this.walkingSound = createjs.Sound.play('walking');
+        this.walkingSound.loop = -1;
+        this.walkingSound.volume = 0.2;
+        this.walkingSound.paused = true;
+      });
 
       this.sprite = new createjs.Sprite(spritesheet);
       this.sprite.gotoAndStop(1);
