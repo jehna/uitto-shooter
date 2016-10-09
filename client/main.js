@@ -92,11 +92,20 @@ Template.body.onCreated(() => {
       hideStats();
     });
 
+    const hitSpritesheet = new createjs.SpriteSheet({
+      images: ['/poof.png'],
+      animations: {
+        poof: [0,4,'stop',0.75],
+        stop: [5,5]
+      },
+      frames: {width: 16, height: 16, regX: 8, regY: 8},
+    })
     class Hit {
       constructor(data) {
-        this.sprite = new createjs.Shape();
-        this.sprite.graphics.beginFill('#FF0000').drawCircle(0, 0, 2);
+        this.sprite = new createjs.Sprite(hitSpritesheet);
+        this.sprite.loop = 1;
         stage.addChild(this.sprite);
+        this.sprite.gotoAndPlay('poof');
         setTimeout(() => {
           stage.removeChild(this.sprite);
         }, 1000);
