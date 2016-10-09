@@ -15,7 +15,7 @@ import { updateVisibility } from '/client/helpers'
 const { b2Vec2 } = Common.Math;
 import './main.html';
 require('createjs-easeljs');
-require('/imports/debug.js');
+//require('/imports/debug.js');
 
 Template.body.onCreated(() => {
   setTimeout(() => {
