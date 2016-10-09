@@ -59,6 +59,7 @@ export default class Player extends GameObject {
     this.data = data;
     this.sprite.x = data.x;
     this.sprite.y = data.y;
+    this.body.SetPosition(new b2Vec2(data.x, data.y));
     this.sprite.rotation = data.r * -180 / Math.PI;
 
     const velocity = this.data.v && (this.data.v.x || this.data.v.y);
