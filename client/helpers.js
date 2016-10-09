@@ -6,7 +6,7 @@ import { myID } from '/client/currentUser.js';
 import { rotate } from '/imports/helpers.js'
 const { b2Vec2 } = Common.Math;
 
-export function updateVisibility(sprite, alpha) {
+export function updateVisibility(sprite, alpha, spriteID) {
   Meteor.setInterval(() => {
 
 
@@ -21,7 +21,10 @@ export function updateVisibility(sprite, alpha) {
     const hits = [];
     const cb = (fixture, point, normal, fraction) => hits.push({fixture, point, normal, fraction});
     physics.RayCast(cb, from, to);
-    const hit = hits.sort((a,b) => b.fraction - a.fraction).pop();
+
+    const ownHits = (hit) => hit.fixture.GetBody().GetUserData().id !== spriteID;
+
+    const hit = hits.filter(ownHits).sort((a,b) => b.fraction - a.fraction).pop();
     if((hit && hit.fixture.GetBody().GetUserData().id !== myID)) {
       sprite.alpha = alpha;
     } else {

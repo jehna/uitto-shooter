@@ -118,6 +118,7 @@ Template.body.onCreated(() => {
       addedAt: function(data, idx) {
         new Player(data._id);
         gameObjects.Player[data._id].setData(data);
+        gameObjects.Player[data._id].setName(data.color);
         render();
       },
       changedAt: function(data, _, idx) {

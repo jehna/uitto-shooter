@@ -46,12 +46,20 @@ export default class Player extends GameObject {
         this.walkingSound.paused = true;
       });
 
-      this.sprite = new createjs.Sprite(spritesheet);
-      this.sprite.gotoAndStop(1);
+      this.sprite = new createjs.Container();
+      this.playerIcon = new createjs.Sprite(spritesheet);
+      this.playerIcon.gotoAndStop(1);
+      this.sprite.addChild(this.playerIcon);
       stage.addChild(this.sprite);
       if (id !== myID) {
-        updateVisibility(this.sprite, 0.0);
+        updateVisibility(this.sprite, 0.0, id);
       }
+
+      this.playerLabel = new createjs.Text('', "8px Arial", "#ffffff");
+      this.playerLabel.textAlign = 'center';
+      this.playerLabel.y = 8;
+      this.playerLabel.alpha = id === myID ? 0 : 0.7;
+      this.sprite.addChild(this.playerLabel)
     }
   }
 
@@ -60,7 +68,7 @@ export default class Player extends GameObject {
     this.sprite.x = data.x;
     this.sprite.y = data.y;
     this.body.SetPosition(new b2Vec2(data.x, data.y));
-    this.sprite.rotation = data.r * -180 / Math.PI;
+    this.playerIcon.rotation = data.r * -180 / Math.PI;
 
     const velocity = this.data.v && (this.data.v.x || this.data.v.y);
     if (this.walkingSound && velocity && this.walkingSound.paused) {
@@ -78,6 +86,11 @@ export default class Player extends GameObject {
         this.walkingSound.pan = panFromCurrentUser(this.data.x, this.data.y);
       }
     }
+  }
+
+  setName(name) {
+    this.name = name;
+    this.playerLabel.text = name;
   }
 
   fixedUpdate() {
