@@ -6,7 +6,7 @@ import Wall from '/imports/GameObjects/Wall'
 import Player from '/imports/GameObjects/Player'
 import { physics } from '/imports/physics.js'
 import { gameObjects } from '/imports/game.js'
-import { map1 } from '../imports/maps'
+import map1 from '/imports/maps/map1.json'
 import { playSoundAt } from '/client/sounds'
 import { wholeStage, stage, canvas, ctx } from '/client/stage.js';
 import { myID, getCurrentUser } from '/client/currentUser.js';
@@ -15,7 +15,7 @@ import { updateVisibility } from '/client/helpers'
 const { b2Vec2 } = Common.Math;
 import './main.html';
 require('createjs-easeljs');
-//require('/imports/debug.js');
+require('/imports/debug.js');
 
 Template.body.onCreated(() => {
   setTimeout(() => {
@@ -133,24 +133,21 @@ Template.body.onCreated(() => {
     });
 
     function LoadMap(map) {
-
       const tiles = new createjs.SpriteSheet({
-        images: [map.spritesheet],
+        images: ['/basictiles.png'],
         frames: {width: 16, height: 16, regX: 0, regY: 0},
       });
+      map.layers.forEach((layer) => {
+        layer.data.forEach((frame, i) => {
+          const x = i % layer.width;
+          const y = Math.floor(i / layer.width);
+          const tile = new createjs.Sprite(tiles);
+          tile.gotoAndStop(frame - 1);
+          tile.x = 16 * x;
+          tile.y = 16 * y;
+          stage.addChild(tile);
 
-      map.layouts.forEach((layout) => {
-        layout.forEach((row, y) => {
-          row.forEach((frame, x) => {
-            if (frame < 0) return;
-            const tile = new createjs.Sprite(tiles);
-            tile.gotoAndStop(frame);
-            tile.x = 16 * x;
-            tile.y = 16 * y;
-            stage.addChild(tile);
-
-            updateVisibility(tile, 0.7);
-          });
+          updateVisibility(tile, 0.7);
         });
       });
     }

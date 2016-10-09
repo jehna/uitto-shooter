@@ -13,7 +13,7 @@ export function updateVisibility(sprite, alpha, spriteID) {
     const from = new b2Vec2(sprite.x + 8, sprite.y + 8);
     const to = new b2Vec2(getCurrentUser().data.x, getCurrentUser().data.y);
 
-    if (distanceToCurrentUser(from.x, from.y) > 70) {
+    if (distanceToCurrentUser(from.x, from.y) > 150) {
       sprite.alpha = alpha;
       return;
     }
