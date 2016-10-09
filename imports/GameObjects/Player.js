@@ -36,6 +36,12 @@ export default class Player extends GameObject {
     if (Meteor.isClient) {
       const spritesheet = new createjs.SpriteSheet({
         images: ['/player.png'],
+        animations: {
+          idle: 0,
+          walk: [1,2,'walk',0.115],
+          shootIdle: [3,4,'idle',0.5],
+          shootWalk: [3,4,'walk',0.5]
+        },
         frames: {width: 14, height: 14, regX: 7, regY: 7},
       });
 
@@ -47,8 +53,7 @@ export default class Player extends GameObject {
       });
 
       this.sprite = new createjs.Container();
-      this.playerIcon = new createjs.Sprite(spritesheet);
-      this.playerIcon.gotoAndStop(1);
+      this.playerIcon = new createjs.Sprite(spritesheet, 'idle');
       this.sprite.addChild(this.playerIcon);
       stage.addChild(this.sprite);
       if (id !== myID) {
@@ -73,8 +78,10 @@ export default class Player extends GameObject {
     const velocity = this.data.v && (this.data.v.x || this.data.v.y);
     if (this.walkingSound && velocity && this.walkingSound.paused) {
       this.walkingSound.paused = false;
+      this.playerIcon.gotoAndPlay('walk');
     } else if (this.walkingSound && !velocity && !this.walkingSound.paused) {
       this.walkingSound.paused = true;
+      this.playerIcon.gotoAndPlay('idle');
     }
 
     if (this.data._id === myID) {
@@ -126,7 +133,7 @@ export default class Player extends GameObject {
     physics.RayCast(cb, from, to);
     const hit = hits.sort((a,b) => b.fraction - a.fraction).pop();
     if (hit) {
-      const hitModel = Hits.insert({x: hit.point.x, y: hit.point.y, shooter: { x: currPos.x, y: currPos.y }}, (_, id) => {
+      const hitModel = Hits.insert({x: hit.point.x, y: hit.point.y, shooter: this.id}, (_, id) => {
         // TODO: An ybetter way to send event to client?
         Meteor.setTimeout(() => {
           Hits.remove({_id: id});

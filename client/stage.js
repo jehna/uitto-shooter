@@ -9,6 +9,10 @@ export const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 export const wholeStage = new createjs.Stage(canvas);
 wholeStage.addChild(stage);
-export function render() {
+
+function update() {
   wholeStage.update();
 }
+
+createjs.Ticker.framerate = 30;
+createjs.Ticker.addEventListener("tick", update);

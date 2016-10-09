@@ -8,7 +8,7 @@ import { physics } from '/imports/physics.js'
 import { gameObjects } from '/imports/game.js'
 import { map1 } from '../imports/maps'
 import { playSoundAt } from '/client/sounds'
-import { stage, render, canvas, ctx } from '/client/stage.js';
+import { wholeStage, stage, canvas, ctx } from '/client/stage.js';
 import { myID, getCurrentUser } from '/client/currentUser.js';
 import { Common } from 'box2dweb';
 import { updateVisibility } from '/client/helpers'
@@ -99,12 +99,13 @@ Template.body.onCreated(() => {
         stage.addChild(this.sprite);
         setTimeout(() => {
           stage.removeChild(this.sprite);
-          render();
         }, 1000);
-        playSoundAt(data.shooter.x, data.shooter.y, 'gunshot');
+
+        let shooter = gameObjects.Player[data.shooter];
+        playSoundAt(shooter.data.x, shooter.data.y, 'gunshot');
+        shooter.playerIcon.gotoAndPlay(shooter.walkingSound.paused ? 'shootIdle' : 'shootWalk');
 
         this.setData(data);
-        render();
       }
 
       setData(data) {
@@ -119,11 +120,9 @@ Template.body.onCreated(() => {
         new Player(data._id);
         gameObjects.Player[data._id].setData(data);
         gameObjects.Player[data._id].setName(data.color);
-        render();
       },
       changedAt: function(data, _, idx) {
         gameObjects.Player[data._id].setData(data);
-        render();
       }
     });
 
@@ -139,8 +138,6 @@ Template.body.onCreated(() => {
         images: [map.spritesheet],
         frames: {width: 16, height: 16, regX: 0, regY: 0},
       });
-      if (!tiles.complete)
-      tiles.addEventListener("complete", render);
 
       map.layouts.forEach((layout) => {
         layout.forEach((row, y) => {
@@ -186,7 +183,7 @@ Template.body.onCreated(() => {
     const stats = new createjs.Text('', "8px monospace", "#ffffff");
     stats.x = 100;
     stats.lineHeight = 10;
-    stage.addChild(stats);
+    wholeStage.addChild(stats);
 
     function showStats() {
       let statsText = '';
@@ -200,11 +197,9 @@ Template.body.onCreated(() => {
       statsText += '|' + leftpad('',32,' ') + '|\n';
       statsText += leftpad('',34,'=') + '\n';
       stats.text = statsText;
-      render();
     }
     function hideStats() {
       stats.text = '';
-      render();
     }
 
   }, 0);
