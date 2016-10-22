@@ -51,6 +51,10 @@ export default class Player extends GameObject {
     if (Meteor.isClient) return;
     super.create(Players, id, {kills: 0, deaths: 0, dead: false});
   }
+  static destroy(id) {
+    if (Meteor.isClient) return;
+    super.destroy(Players, id);
+  }
 
   constructor(id, position = new b2Vec2(30, 30), angle = 0) {
     super(

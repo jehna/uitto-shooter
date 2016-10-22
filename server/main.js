@@ -27,5 +27,9 @@ Meteor.startup(() => {
     }
   });
 
-
+  Meteor.onConnection((connection) => {
+    connection.onClose(() => {
+      Player.destroy(connection.id);
+    });
+  });
 });
