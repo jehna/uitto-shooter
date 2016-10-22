@@ -9,7 +9,7 @@ const { b2Vec2 } = Common.Math;
 export function updateVisibility(sprite, alpha, spriteID) {
   Meteor.setInterval(() => {
 
-
+    if (!getCurrentUser()) return;
     const from = new b2Vec2(sprite.x + 8, sprite.y + 8);
     const to = new b2Vec2(getCurrentUser().data.x, getCurrentUser().data.y);
 

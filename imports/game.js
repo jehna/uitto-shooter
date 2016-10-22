@@ -1,4 +1,6 @@
-export const gameObjects = {};
+export const gameObjects = {
+  Player: {}
+};
 
 export function objByUserData(d) {
   switch(d.type) {

@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Players } from '/imports/api/players.js';
+import { Log } from '/imports/api/log.js';
 import { Hits } from '/imports/api/hits.js';
 import GameObject from './GameObject.js'
 import { Common } from 'box2dweb';
@@ -10,16 +11,33 @@ import { physics } from '/imports/physics.js'
 import { gameObjects } from '/imports/game.js'
 if (Meteor.isClient) {
   import { onSoundLoaded } from '/client/sounds';
-  import { stage, canvas } from '/client/stage.js';
+  import { playerLayer, canvas, stage } from '/client/stage.js';
   import { myID, getCurrentUser } from '/client/currentUser.js';
   import { updateVisibility, distanceToCurrentUser, panFromCurrentUser } from '/client/helpers'
+
+  export const spritesheet = new createjs.SpriteSheet({
+    images: ['/player.png'],
+    animations: {
+      idle: 0,
+      walk: {
+        frames: [1,2,0,3,4,0],
+        next: 'walk',
+        speed: 0.3
+      },
+      shootIdle: [3,4,'idle',0.5],
+      shootWalk: [3,4,'walk',0.5],
+      death: [5,6,'dead',0.2],
+      dead: [6],
+    },
+    frames: {width: 16, height: 16, regX: 8, regY: 8, margin: 0},
+  });
 }
 
 export default class Player extends GameObject {
 
   static create(id) {
     if (Meteor.isClient) return;
-    super.create(Players, id, {kills: 0, deaths: 0});
+    super.create(Players, id, {kills: 0, deaths: 0, dead: false});
   }
 
   constructor(id, position = new b2Vec2(30, 30), angle = 0) {
@@ -34,28 +52,19 @@ export default class Player extends GameObject {
     this.rotateSpeed = 3;
 
     if (Meteor.isClient) {
-      const spritesheet = new createjs.SpriteSheet({
-        images: ['/player.png'],
-        animations: {
-          idle: 0,
-          walk: [1,2,'walk',0.115],
-          shootIdle: [3,4,'idle',0.5],
-          shootWalk: [3,4,'walk',0.5]
-        },
-        frames: {width: 14, height: 14, regX: 7, regY: 7},
-      });
 
       onSoundLoaded('walking', () => {
         this.walkingSound = createjs.Sound.play('walking');
         this.walkingSound.loop = -1;
         this.walkingSound.volume = 0.2;
+        this.walkingSound.play();
         this.walkingSound.paused = true;
       });
 
       this.sprite = new createjs.Container();
       this.playerIcon = new createjs.Sprite(spritesheet, 'idle');
       this.sprite.addChild(this.playerIcon);
-      stage.addChild(this.sprite);
+      playerLayer.addChild(this.sprite);
       if (id !== myID) {
         updateVisibility(this.sprite, 0.0, id);
       }
@@ -73,7 +82,7 @@ export default class Player extends GameObject {
     this.sprite.x = data.x;
     this.sprite.y = data.y;
     this.body.SetPosition(new b2Vec2(data.x, data.y));
-    this.playerIcon.rotation = data.r * -180 / Math.PI;
+    this.playerIcon.rotation = data.r * -180 / Math.PI + 90;
 
     const velocity = this.data.v && (this.data.v.x || this.data.v.y);
     if (this.walkingSound && velocity && this.walkingSound.paused) {
@@ -91,6 +100,15 @@ export default class Player extends GameObject {
       if (this.walkingSound) {
         this.walkingSound.volume = 0.5 - distanceToCurrentUser(this.data.x, this.data.y) / 100 * 0.5;
         this.walkingSound.pan = panFromCurrentUser(this.data.x, this.data.y);
+      }
+    }
+
+    if (this.data.dead !== this.dead) {
+      this.dead = this.data.dead;
+      if (this.dead) {
+        this.playerIcon.gotoAndPlay('death');
+      } else {
+        this.playerIcon.gotoAndPlay('idle');
       }
     }
   }
@@ -144,18 +162,24 @@ export default class Player extends GameObject {
       const hitUserData = hit.fixture.GetBody().GetUserData();
       if (hitUserData.type === 'Player') {
         const hitPlayer = gameObjects.Player[hitUserData.id];
-        hitPlayer.hit();
         Players.update({_id: this.id}, {$inc: {kills: 1 }});
+        const hitPlayerPosition = hitPlayer.body.GetPosition().Copy();
+        Log.insert({type: 'kill', by: this.id, who: hitPlayer.id, position: { x: hitPlayerPosition.x, y: hitPlayerPosition.y, r: hitPlayer.body.GetAngle() }});
+        hitPlayer.hit();
       }
     }
   }
 
   hit() {
     if (Meteor.isClient) return;
-    Players.update({_id: this.id}, {$inc: {deaths: 1 }});
-    this.body.SetPosition(new b2Vec2(24, 24));
-    this.body.SetAngle(Math.PI);
+    Players.update({_id: this.id}, {$inc: {deaths: 1 }, $set: { dead: true }});
     this.updateModel();
+    Meteor.setTimeout(() => {
+      this.body.SetPosition(new b2Vec2(24, 24));
+      this.body.SetAngle(Math.PI);
+      this.updateModel();
+      Players.update({_id: this.id}, {$set: { dead: false }});
+    }, 1000);
   }
 }
 

@@ -8,7 +8,7 @@ import { physics } from '/imports/physics.js'
 import { gameObjects } from '/imports/game.js'
 import map1 from '/imports/maps/map1.json'
 import { playSoundAt } from '/client/sounds'
-import { wholeStage, stage, canvas, ctx } from '/client/stage.js';
+import { wholeStage, canvas, ctx, mapLayer } from '/client/stage.js';
 import { myID, getCurrentUser } from '/client/currentUser.js';
 import { Common } from 'box2dweb';
 import { updateVisibility } from '/client/helpers'
@@ -104,10 +104,10 @@ Template.body.onCreated(() => {
       constructor(data) {
         this.sprite = new createjs.Sprite(hitSpritesheet);
         this.sprite.loop = 1;
-        stage.addChild(this.sprite);
+        mapLayer.addChild(this.sprite);
         this.sprite.gotoAndPlay('poof');
         setTimeout(() => {
-          stage.removeChild(this.sprite);
+          mapLayer.removeChild(this.sprite);
         }, 1000);
 
         let shooter = gameObjects.Player[data.shooter];
@@ -154,7 +154,7 @@ Template.body.onCreated(() => {
           tile.gotoAndStop(frame - 1);
           tile.x = 16 * x;
           tile.y = 16 * y;
-          stage.addChild(tile);
+          mapLayer.addChild(tile);
 
           updateVisibility(tile, 0.7);
         });
