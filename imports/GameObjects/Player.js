@@ -3,8 +3,9 @@ import { Players } from '/imports/api/players.js';
 import { Log } from '/imports/api/log.js';
 import { Hits } from '/imports/api/hits.js';
 import GameObject from './GameObject.js'
-import { Common } from 'box2dweb';
+import { Dynamics, Common } from 'box2dweb';
 const { b2Vec2 } = Common.Math;
+const { b2Body } = Dynamics;
 import { BodyDef, RectShape, CircleShape, FixtureFn } from '/imports/box2dBuilders';
 import { rotate } from '/imports/helpers.js'
 import { physics } from '/imports/physics.js'
@@ -24,12 +25,12 @@ if (Meteor.isClient) {
         next: 'walk',
         speed: 0.3
       },
-      shootIdle: [3,4,'idle',0.5],
-      shootWalk: [3,4,'walk',0.5],
+      shootIdle: [7,7,'idle',0.25],
+      shootWalk: [7,7,'walk',0.25],
       death: [5,6,'dead',0.2],
       dead: [6],
     },
-    frames: {width: 16, height: 16, regX: 8, regY: 8, margin: 0},
+    frames: {width: 16, height: 16, regX: 8, regY: 8, spacing: 1},
   });
 }
 
@@ -136,7 +137,7 @@ export default class Player extends GameObject {
   }
 
   shoot() {
-    if (Meteor.isClient) return;
+    if (Meteor.isClient || this.dead) return;
     const [nx, ny] = rotate(0, 0, 0, 1, this.body.GetAngle());
     const from = new b2Vec2(nx, ny)
     from.Normalize();
@@ -162,6 +163,7 @@ export default class Player extends GameObject {
       const hitUserData = hit.fixture.GetBody().GetUserData();
       if (hitUserData.type === 'Player') {
         const hitPlayer = gameObjects.Player[hitUserData.id];
+        if (hitPlayer.dead) return;
         Players.update({_id: this.id}, {$inc: {kills: 1 }});
         const hitPlayerPosition = hitPlayer.body.GetPosition().Copy();
         Log.insert({type: 'kill', by: this.id, who: hitPlayer.id, position: { x: hitPlayerPosition.x, y: hitPlayerPosition.y, r: hitPlayer.body.GetAngle() }});
@@ -173,12 +175,17 @@ export default class Player extends GameObject {
   hit() {
     if (Meteor.isClient) return;
     Players.update({_id: this.id}, {$inc: {deaths: 1 }, $set: { dead: true }});
+    this.dead = true;
     this.updateModel();
+    this.setVelocityAndAngle(new b2Vec2(0, 0), 0);
+    this.body.SetType(b2Body.b2_kinematicBody);
     Meteor.setTimeout(() => {
       this.body.SetPosition(new b2Vec2(24, 24));
       this.body.SetAngle(Math.PI);
+      this.body.SetType(b2Body.b2_dynamicBody);
       this.updateModel();
       Players.update({_id: this.id}, {$set: { dead: false }});
+      this.dead = false;
     }, 1000);
   }
 }
