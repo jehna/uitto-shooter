@@ -12,8 +12,7 @@ export default class GameObject {
   }
 
   static destroy(Model, id) {
-    if (Meteor.isClient) return;
-    Model.remove({_id: id});
+    if (Meteor.isServer) Model.remove({_id: id});
     const gameObj = gameObjects[this.name][id];
     if (gameObj && gameObj.body) physics.DestroyBody(gameObj.body);
     delete gameObjects[this.name][id];

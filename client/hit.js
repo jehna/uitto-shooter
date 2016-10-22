@@ -7,7 +7,7 @@ import { playSoundAt } from '/client/sounds';
 require('createjs-easeljs');
 
 class Hit {
-  
+
   static hitSpritesheet() {
     return new createjs.SpriteSheet({
       images: [assets.getResult('hitSpritesheet')],
@@ -30,7 +30,7 @@ class Hit {
 
     let shooter = gameObjects.Player[data.shooter];
     playSoundAt(shooter.data.x, shooter.data.y, 'gunshot');
-    shooter.playerIcon.gotoAndPlay(shooter.walkingSound.paused ? 'shootIdle' : 'shootWalk');
+    shooter.playerIcon.gotoAndPlay(shooter.walking ? 'shootWalk' : 'shootIdle');
 
     this.setData(data);
   }

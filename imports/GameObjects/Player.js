@@ -15,6 +15,7 @@ if (Meteor.isClient) {
   import { myID, getCurrentUser } from '/client/currentUser.js';
   import { updateVisibility, distanceToCurrentUser, panFromCurrentUser } from '/client/helpers'
   import { assets } from '/client/assets'
+  import { uittoshooter } from '/client/uittoshooter'
 
   export function getPlayerSpritesheet() {
     return new createjs.SpriteSheet({
@@ -36,15 +37,20 @@ if (Meteor.isClient) {
   }
   assets.loadFile({ id: 'playerSprite', src: '/player.png' });
 
-  Players.find({}).observe({
-    addedAt: function(data, idx) {
-      new Player(data._id);
-      gameObjects.Player[data._id].setData(data);
-      gameObjects.Player[data._id].setName(data.color);
-    },
-    changedAt: function(data, _, idx) {
-      gameObjects.Player[data._id].setData(data);
-    }
+  uittoshooter.onCreateGame(() => {
+    Players.find({}).observe({
+      addedAt: function(data, idx) {
+        new Player(data._id);
+        gameObjects.Player[data._id].setData(data);
+        gameObjects.Player[data._id].setName(data.color);
+      },
+      changedAt: function(data, _, idx) {
+        gameObjects.Player[data._id].setData(data);
+      },
+      removedAt: function(data, idx) {
+        Player.destroy(data._id);
+      }
+    });
   });
 }
 
@@ -55,7 +61,10 @@ export default class Player extends GameObject {
     super.create(Players, id, {kills: 0, deaths: 0, dead: false});
   }
   static destroy(id) {
-    if (Meteor.isClient) return;
+    if (Meteor.isClient) {
+      const player = gameObjects[this.name][id];
+      playerLayer.removeChild(player.sprite);
+    }
     super.destroy(Players, id);
   }
 
@@ -102,11 +111,13 @@ export default class Player extends GameObject {
     this.playerIcon.rotation = data.r * -180 / Math.PI + 90;
 
     const velocity = this.data.v && (this.data.v.x || this.data.v.y);
-    if (this.walkingSound && velocity && this.walkingSound.paused) {
-      this.walkingSound.paused = false;
+    if (!this.walking && velocity) {
+      this.walking = true;
+      this.walkingSound.paused = !this.walking;
       this.playerIcon.gotoAndPlay('walk');
-    } else if (this.walkingSound && !velocity && !this.walkingSound.paused) {
-      this.walkingSound.paused = true;
+    } else if (this.walking && !velocity) {
+      this.walking = false;
+      this.walkingSound.paused = !this.walking;
       this.playerIcon.gotoAndPlay('idle');
     }
 
