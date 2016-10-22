@@ -1,5 +1,7 @@
 import { wholeStage } from '/client/stage.js';
 import { Input } from '/client/input'
+import { gameObjects } from '/imports/game'
+import { myID } from '/client/currentUser';
 
 function leftpad (str, len, ch) {
   str = String(str);
