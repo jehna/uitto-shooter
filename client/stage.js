@@ -18,5 +18,5 @@ function update() {
   wholeStage.update();
 }
 
-createjs.Ticker.framerate = 30;
+createjs.Ticker.framerate = 35;
 createjs.Ticker.addEventListener("tick", update);

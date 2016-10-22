@@ -23,11 +23,11 @@ if (Meteor.isClient) {
       walk: {
         frames: [1,2,0,3,4,0],
         next: 'walk',
-        speed: 0.3
+        speed: 9/createjs.Ticker.framerate
       },
-      shootIdle: [7,7,'idle',0.25],
-      shootWalk: [7,7,'walk',0.25],
-      death: [5,6,'dead',0.2],
+      shootIdle: [7,7,'idle',7.5/createjs.Ticker.framerate],
+      shootWalk: [7,7,'walk',7.5/createjs.Ticker.framerate],
+      death: [5,6,'dead',6/createjs.Ticker.framerate],
       dead: [6],
     },
     frames: {width: 16, height: 16, regX: 8, regY: 8, spacing: 1},
