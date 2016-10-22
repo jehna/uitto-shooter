@@ -11,27 +11,30 @@ import { rotate } from '/imports/helpers.js'
 import { physics } from '/imports/physics.js'
 import { gameObjects } from '/imports/game.js'
 if (Meteor.isClient) {
-  import { onSoundLoaded } from '/client/sounds';
   import { playerLayer, canvas, stage } from '/client/stage.js';
   import { myID, getCurrentUser } from '/client/currentUser.js';
   import { updateVisibility, distanceToCurrentUser, panFromCurrentUser } from '/client/helpers'
+  import { assets } from '/client/assets'
 
-  export const spritesheet = new createjs.SpriteSheet({
-    images: ['/player.png'],
-    animations: {
-      idle: 0,
-      walk: {
-        frames: [1,2,0,3,4,0],
-        next: 'walk',
-        speed: 9/createjs.Ticker.framerate
+  export function getPlayerSpritesheet() {
+    return new createjs.SpriteSheet({
+      images: [assets.getResult('playerSprite')],
+      animations: {
+        idle: 0,
+        walk: {
+          frames: [1,2,0,3,4,0],
+          next: 'walk',
+          speed: 9/createjs.Ticker.framerate
+        },
+        shootIdle: [7,7,'idle',7.5/createjs.Ticker.framerate],
+        shootWalk: [7,7,'walk',7.5/createjs.Ticker.framerate],
+        death: [5,6,'dead',6/createjs.Ticker.framerate],
+        dead: [6],
       },
-      shootIdle: [7,7,'idle',7.5/createjs.Ticker.framerate],
-      shootWalk: [7,7,'walk',7.5/createjs.Ticker.framerate],
-      death: [5,6,'dead',6/createjs.Ticker.framerate],
-      dead: [6],
-    },
-    frames: {width: 16, height: 16, regX: 8, regY: 8, spacing: 1},
-  });
+      frames: {width: 16, height: 16, regX: 8, regY: 8, spacing: 1},
+    })
+  }
+  assets.loadFile({ id: 'playerSprite', src: '/player.png' });
 
   Players.find({}).observe({
     addedAt: function(data, idx) {
@@ -69,16 +72,14 @@ export default class Player extends GameObject {
 
     if (Meteor.isClient) {
 
-      onSoundLoaded('walking', () => {
-        this.walkingSound = createjs.Sound.play('walking');
-        this.walkingSound.loop = -1;
-        this.walkingSound.volume = 0.2;
-        this.walkingSound.play();
-        this.walkingSound.paused = true;
-      });
+      this.walkingSound = createjs.Sound.play('walking');
+      this.walkingSound.loop = -1;
+      this.walkingSound.volume = 0.2;
+      this.walkingSound.play();
+      this.walkingSound.paused = true;
 
       this.sprite = new createjs.Container();
-      this.playerIcon = new createjs.Sprite(spritesheet, 'idle');
+      this.playerIcon = new createjs.Sprite(getPlayerSpritesheet(), 'idle');
       this.sprite.addChild(this.playerIcon);
       playerLayer.addChild(this.sprite);
       if (id !== myID) {

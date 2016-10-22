@@ -2,7 +2,7 @@ import { Log } from '/imports/api/log.js'
 import { wholeStage, mapLayer } from '/client/stage.js';
 import { gameObjects } from '/imports/game.js'
 import { myID } from '/client/currentUser.js';
-import { spritesheet } from '/imports/GameObjects/Player.js';
+import { getPlayerSpritesheet } from '/imports/GameObjects/Player.js';
 import { uittoshooter } from '/client/uittoshooter'
 
 require('createjs-easeljs');
@@ -29,7 +29,7 @@ uittoshooter.onCreateGame(() => {
           const whoName = who.data.color + (who.id === myID ? ' (you)' : '');
           addLogText(`${byName} ︻デ═一 ${whoName}`);
 
-          const deadBody = new createjs.Sprite(spritesheet);
+          const deadBody = new createjs.Sprite(getPlayerSpritesheet());
           deadBody.gotoAndStop('dead');
           deadBody.x = data.position.x;
           deadBody.y = data.position.y;

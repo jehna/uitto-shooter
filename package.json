@@ -6,11 +6,11 @@
   },
   "dependencies": {
     "createjs-easeljs": "^0.8.2",
-    "createjs-preloadjs": "^0.6.2",
     "meteor-node-stubs": "~0.2.0"
   },
   "devDependencies": {
     "box2dweb": "^2.1.0-b",
-    "createjs-soundjs": "^0.6.2"
+    "createjs-soundjs": "^0.6.2",
+    "createjs-preloadjs": "^0.6.2"
   }
 }
