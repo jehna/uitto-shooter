@@ -30,8 +30,14 @@ export function onSoundLoaded(sound, cb) {
   checkSoundLoaded();
 }
 
-onSoundLoaded('background', () => {
+/*onSoundLoaded('background', () => {
   const bg = createjs.Sound.play('background');
   bg.loop = -1;
   bg.volume = 0.3;
-});
+});*/
+
+function pauseSounds () {
+  createjs.Sound.muted = document.visibilityState !== 'visible'
+}
+document.addEventListener("visibilitychange", pauseSounds);
+pauseSounds();
