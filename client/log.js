@@ -3,6 +3,7 @@ import { wholeStage, mapLayer } from '/client/stage.js';
 import { gameObjects } from '/imports/game.js'
 import { myID } from '/client/currentUser.js';
 import { spritesheet } from '/imports/GameObjects/Player.js';
+import { uittoshooter } from '/client/uittoshooter'
 
 require('createjs-easeljs');
 
@@ -17,7 +18,7 @@ function addLogText(text) {
   logText.text = logTexts.join('\n');
 }
 
-Meteor.setTimeout(() => {
+uittoshooter.onCreateGame(() => {
   Log.find({}).observe({
     added: function(data) {
       switch(data.type) {
@@ -43,4 +44,4 @@ Meteor.setTimeout(() => {
       addLogText()
     }
   });
-}, 1000);
+});

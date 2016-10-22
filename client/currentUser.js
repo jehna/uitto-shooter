@@ -1,6 +1,7 @@
 import { Players } from '../imports/api/players';
 import { randomHex } from '../imports/helpers';
 import { gameObjects } from '/imports/game.js'
+import { uittoshooter } from '/client/uittoshooter'
 
 export const myID = localStorage.myID || (localStorage.myID = randomHex(50))
 
@@ -13,7 +14,7 @@ function initializeUser() {
     Meteor.setTimeout(initializeUser, 1000);
   }
 }
-initializeUser();
+uittoshooter.onCreateGame(initializeUser);
 
 export function getCurrentUser() {
   return gameObjects.Player[myID];

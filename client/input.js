@@ -1,4 +1,5 @@
 import { myID } from '/client/currentUser.js';
+import { uittoshooter } from '/client/uittoshooter'
 
 export const Input = {
   keysDown: {},
@@ -18,14 +19,6 @@ export const Input = {
     return Input.keysDown[key];
   }
 }
-
-window.addEventListener('keydown', (e) => {
-  Input.keysDown[e.which] = true;
-});
-window.addEventListener('keyup', (e) => {
-  Input.keysDown[e.which] = false;
-});
-
 
 const currMove = {x: 0, y: 0, r: 0};
 function move(key, x, y, r) {
@@ -49,15 +42,26 @@ function move(key, x, y, r) {
   });
 }
 
-move(Input.keys.w, 1, 0, 0);
-move(Input.keys.s, -1, 0, 0);
-move(Input.keys.a, 0, 1, 0);
-move(Input.keys.d, 0, -1, 0);
-move(Input.keys.left, 0, 0, 1);
-move(Input.keys.right, 0, 0, -1);
 
-window.addEventListener('keydown', (e) => {
-  if (e.which === Input.keys.space) {
-    Meteor.call('shoot', myID);
-  }
+uittoshooter.onCreateGame(() => {
+  window.addEventListener('keydown', (e) => {
+    Input.keysDown[e.which] = true;
+  });
+  window.addEventListener('keyup', (e) => {
+    Input.keysDown[e.which] = false;
+  });
+
+  move(Input.keys.w, 1, 0, 0);
+  move(Input.keys.s, -1, 0, 0);
+  move(Input.keys.a, 0, 1, 0);
+  move(Input.keys.d, 0, -1, 0);
+  move(Input.keys.left, 0, 0, 1);
+  move(Input.keys.right, 0, 0, -1);
+
+  window.addEventListener('keydown', (e) => {
+    if (e.which === Input.keys.space) {
+      Meteor.call('shoot', myID);
+    }
+  })
+
 });

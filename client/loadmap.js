@@ -1,6 +1,7 @@
 import map1 from '/imports/maps/map1.json'
 import { mapLayer } from '/client/stage.js';
 import { updateVisibility } from '/client/helpers'
+import { uittoshooter } from '/client/uittoshooter'
 
 function LoadMap(map) {
   const tiles = new createjs.SpriteSheet({
@@ -22,4 +23,4 @@ function LoadMap(map) {
   });
 }
 
-LoadMap(map1);
+uittoshooter.onCreateGame(() => LoadMap(map1));
