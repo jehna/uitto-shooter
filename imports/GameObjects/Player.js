@@ -42,7 +42,7 @@ if (Meteor.isClient) {
       addedAt: function(data, idx) {
         new Player(data._id);
         gameObjects.Player[data._id].setData(data);
-        gameObjects.Player[data._id].setName(data.color);
+        gameObjects.Player[data._id].setName(data.nick);
       },
       changedAt: function(data, _, idx) {
         gameObjects.Player[data._id].setData(data);
@@ -56,9 +56,9 @@ if (Meteor.isClient) {
 
 export default class Player extends GameObject {
 
-  static create(id) {
+  static create(id, nick) {
     if (Meteor.isClient) return;
-    super.create(Players, id, {kills: 0, deaths: 0, dead: false});
+    super.create(Players, id, {kills: 0, deaths: 0, dead: false, nick: nick});
   }
   static destroy(id) {
     if (Meteor.isClient) {

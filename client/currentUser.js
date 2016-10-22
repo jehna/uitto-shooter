@@ -7,14 +7,6 @@ export let myID;
 
 function initializeUser() {
   myID = Meteor.default_connection._lastSessionId;
-  
-  if (Players._connection.status().connected) {
-    if (Players.find({_id: myID}).count() === 0) {
-      Meteor.call('createPlayer', myID)
-    }
-  } else {
-    Meteor.setTimeout(initializeUser, 1000);
-  }
 }
 uittoshooter.onCreateGame(initializeUser);
 

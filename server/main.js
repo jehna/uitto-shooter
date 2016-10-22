@@ -22,8 +22,8 @@ Meteor.startup(() => {
       const shooter = gameObjects.Player[idx];
       shooter.shoot();
     },
-    createPlayer(idx) {
-      Player.create(idx);
+    createPlayer(idx, nick) {
+      Player.create(idx, nick);
     }
   });
 

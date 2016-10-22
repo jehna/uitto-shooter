@@ -6,13 +6,19 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
+    font: 14px monospace;
+    background-color: #444;
+    -webkit-font-smoothing: none;
+  }
+
+  h1 {
+    color: #F00;
   }
 
   canvas {
     image-rendering: pixelated;
     width: 100%;
     height: 100%;
-    background-color: #444;
   }
 
   #debug-canvas {
@@ -23,8 +29,67 @@
     height: auto;
     background: transparent;
   }
+
+  label {
+    display: block;
+  }
+
+  form.play-game {
+    margin: 80px auto;
+    width: 300px;
+    text-align: center;
+    border: 3px double #0F0;
+    padding: 2em;
+    box-sizing: border-box;
+  }
+
+  label {
+    color: #FE0;
+  }
+
+  input {
+    border: 3px double #0F0;
+    background: none;
+    margin: 1em;
+    color: #F0F;
+    font: inherit;
+    padding: 0.4em;
+    text-align: center;
+  }
+
+  button {
+    background: #F0F;
+    border: 0;
+    font: inherit;
+    padding: 0.5em 1em;
+  }
+
+  input:focus {
+    outline: none;
+  }
+
+  button:focus {
+    outline: none;
+    background-color: #F3F;
+    font-weight: bold;
+  }
   </style>
 </head>
 
 <body>
+  <form class="play-game">
+    <h1>Uitto Shooter 1.10</h1>
+    <div>
+      <label for="nimimerkki">Enter nick:</label>
+      <input type="text" id="nimimerkki" name="nick" autofocus />
+    </div>
+    <!-- <div>
+      <label><input type="radio"> Red team</label>
+      <label><input type="radio"> Blue team</label>
+    </div> -->
+    <div>
+      <button type="submit">Let's play!</button>
+    </div>
+  </form>
+
 </body>

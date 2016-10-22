@@ -7,7 +7,7 @@ import { uittoshooter } from '/client/uittoshooter'
 
 require('createjs-easeljs');
 
-const logText = new createjs.Text('', '6px Arial', '#FFFFFF');
+const logText = new createjs.Text('', '10px Arial', '#FFFFFF');
 logText.lineHeight = 4;
 wholeStage.addChild(logText);
 
@@ -25,8 +25,8 @@ uittoshooter.onCreateGame(() => {
         case 'kill':
           const by = gameObjects.Player[data.by];
           const who = gameObjects.Player[data.who];
-          const byName = by.data.color + (by.id === myID ? ' (you)' : '');
-          const whoName = who.data.color + (who.id === myID ? ' (you)' : '');
+          const byName = by.data.nick + (by.id === myID ? ' (you)' : '');
+          const whoName = who.data.nick + (who.id === myID ? ' (you)' : '');
           addLogText(`${byName} ︻デ═一 ${whoName}`);
 
           const deadBody = new createjs.Sprite(getPlayerSpritesheet());
