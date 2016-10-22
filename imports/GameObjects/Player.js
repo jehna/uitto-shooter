@@ -32,6 +32,17 @@ if (Meteor.isClient) {
     },
     frames: {width: 16, height: 16, regX: 8, regY: 8, spacing: 1},
   });
+
+  Players.find({}).observe({
+    addedAt: function(data, idx) {
+      new Player(data._id);
+      gameObjects.Player[data._id].setData(data);
+      gameObjects.Player[data._id].setName(data.color);
+    },
+    changedAt: function(data, _, idx) {
+      gameObjects.Player[data._id].setData(data);
+    }
+  });
 }
 
 export default class Player extends GameObject {
