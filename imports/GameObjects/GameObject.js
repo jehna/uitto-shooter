@@ -8,7 +8,7 @@ export default class GameObject {
     if (Meteor.isClient) return;
     let model = Object.assign({_id: id, x:-100, y: -100, r: 0, color: '#' + randomHex(6)}, addProps);
     Model.insert(model)
-    new this(id);
+    new this(id, model);
   }
 
   static destroy(Model, id) {

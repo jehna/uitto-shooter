@@ -14,10 +14,11 @@ Template.body.events({
 
     const target = event.target;
     const nick = target.nick.value;
+    const team = target.team.value;
 
     target.parentElement.removeChild(target);
 
     uittoshooter._onCreateGame.forEach(fn => fn());
-    Meteor.call('createPlayer', myID, nick);
+    Meteor.call('createPlayer', myID, nick, team);
   }
 });

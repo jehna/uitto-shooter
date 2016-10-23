@@ -17,9 +17,9 @@ if (Meteor.isClient) {
   import { assets } from '/client/assets'
   import { uittoshooter } from '/client/uittoshooter'
 
-  export function getPlayerSpritesheet() {
+  export function getPlayerSpritesheet (team = 'red') {
     return new createjs.SpriteSheet({
-      images: [assets.getResult('playerSprite')],
+      images: [assets.getResult(team === 'red' ? 'playerSpriteRed' : 'playerSpriteBlue')],
       animations: {
         idle: 0,
         walk: {
@@ -35,12 +35,13 @@ if (Meteor.isClient) {
       frames: {width: 16, height: 16, regX: 8, regY: 8, spacing: 1},
     })
   }
-  assets.loadFile({ id: 'playerSprite', src: '/player.png' });
+  assets.loadFile({ id: 'playerSpriteRed', src: '/player.png' });
+  assets.loadFile({ id: 'playerSpriteBlue', src: '/player-blue.png' });
 
   uittoshooter.onCreateGame(() => {
     Players.find({}).observe({
       addedAt: function(data, idx) {
-        new Player(data._id);
+        new Player(data._id, data);
         gameObjects.Player[data._id].setData(data);
         gameObjects.Player[data._id].setName(data.nick);
       },
@@ -56,9 +57,9 @@ if (Meteor.isClient) {
 
 export default class Player extends GameObject {
 
-  static create(id, nick) {
+  static create(id, nick, team) {
     if (Meteor.isClient) return;
-    super.create(Players, id, {kills: 0, deaths: 0, dead: false, nick: nick});
+    super.create(Players, id, {kills: 0, deaths: 0, dead: false, nick: nick, team: team});
   }
   static destroy(id) {
     if (Meteor.isClient) {
@@ -68,7 +69,7 @@ export default class Player extends GameObject {
     super.destroy(Players, id);
   }
 
-  constructor(id, position = new b2Vec2(30, 30), angle = 0) {
+  constructor(id, data, position = new b2Vec2(30, 30), angle = 0) {
     super(
       id,
       BodyDef(position, angle, 10, 0),
@@ -78,6 +79,7 @@ export default class Player extends GameObject {
     );
     this.speed = 80;
     this.rotateSpeed = 3;
+    this.team = data.team;
 
     if (Meteor.isClient) {
 
@@ -88,7 +90,7 @@ export default class Player extends GameObject {
       this.walkingSound.paused = true;
 
       this.sprite = new createjs.Container();
-      this.playerIcon = new createjs.Sprite(getPlayerSpritesheet(), 'idle');
+      this.playerIcon = new createjs.Sprite(getPlayerSpritesheet(this.team), 'idle');
       this.sprite.addChild(this.playerIcon);
       playerLayer.addChild(this.sprite);
       if (id !== myID) {
@@ -193,7 +195,7 @@ export default class Player extends GameObject {
         if (hitPlayer.dead) return;
         Players.update({_id: this.id}, {$inc: {kills: 1 }});
         const hitPlayerPosition = hitPlayer.body.GetPosition().Copy();
-        Log.insert({type: 'kill', by: this.id, who: hitPlayer.id, position: { x: hitPlayerPosition.x, y: hitPlayerPosition.y, r: hitPlayer.body.GetAngle() }});
+        Log.insert({type: 'kill', by: this.id, who: hitPlayer.id, team: hitPlayer.team, position: { x: hitPlayerPosition.x, y: hitPlayerPosition.y, r: hitPlayer.body.GetAngle() }});
         hitPlayer.hit();
       }
     }

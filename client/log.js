@@ -29,7 +29,7 @@ uittoshooter.onCreateGame(() => {
           const whoName = who.data.nick + (who.id === myID ? ' (you)' : '');
           addLogText(`${byName} ︻デ═一 ${whoName}`);
 
-          const deadBody = new createjs.Sprite(getPlayerSpritesheet());
+          const deadBody = new createjs.Sprite(getPlayerSpritesheet(data.team));
           deadBody.gotoAndStop('dead');
           deadBody.x = data.position.x;
           deadBody.y = data.position.y;
