@@ -44,20 +44,24 @@ function generateStatsString(players) {
   return statsText;
 }
 
-function showStats() {
+export function generateStats() {
   const players = Object.values(gameObjects.Player).sort((a,b) => b.data.kills - a.data.kills);
   if (currentGameMode === gameModes.DEATHMATCH) {
-    stats.text = generateStatsString(players);
+    return generateStatsString(players);
   } else if (currentGameMode === gameModes.TEAM_DEATHMATCH) {
     const blueTeam = players.filter(player => player.team === 'blue');
     const redTeam = players.filter(player => player.team === 'red');
-    stats.text =
+    return ''+
 `Blue team:
 ${generateStatsString(blueTeam)}
 
 Red team:
 ${generateStatsString(redTeam)}`;
   }
+}
+
+function showStats() {
+  stats.text = generateStats();
 }
 function hideStats() {
   stats.text = '';

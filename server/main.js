@@ -10,16 +10,16 @@ import Wall from '/imports/GameObjects/Wall.js';
 const Box2D = require('box2dweb');
 
 Meteor.startup(() => {
-  const roundEnds = Date.now() + 5 * 60 * 1000;
+  const roundEnds = Date.now() + 60 * 1000;
 
   Meteor.methods({
     move(mx, my, mr, idx) {
-      if (!gameObjects.Player[idx] || gameObjects.Player[idx].dead) return;
+      if (Date.now() > roundEnds || !gameObjects.Player[idx] || gameObjects.Player[idx].dead) return;
       const to = new Box2D.Common.Math.b2Vec2(my, mx);
       gameObjects.Player[idx].setVelocityAndAngle(to, mr);
     },
     shoot(idx) {
-      if (!gameObjects.Player[idx] || gameObjects.Player[idx].dead) return;
+      if (Date.now() > roundEnds || !gameObjects.Player[idx] || gameObjects.Player[idx].dead) return;
       const shooter = gameObjects.Player[idx];
       shooter.shoot();
     },
