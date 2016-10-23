@@ -17,6 +17,7 @@ Template.body.events({
     const team = target.team.value;
 
     target.parentElement.removeChild(target);
+    document.body.className = 'game';
 
     uittoshooter._onCreateGame.forEach(fn => fn());
     Meteor.call('createPlayer', myID, nick, team);
