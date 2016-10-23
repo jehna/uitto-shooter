@@ -1,6 +1,6 @@
 import './main.html';
-import { uittoshooter } from '/client/uittoshooter'
-import { myID } from '/client/currentUser'
+import { uittoshooter } from '/client/uittoshooter';
+import { myID } from '/client/currentUser';
 require('/imports/GameObjects/Wall');
 //require('/imports/debug.js');
 

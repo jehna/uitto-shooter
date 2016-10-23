@@ -1,10 +1,10 @@
 import { wholeStage } from '/client/stage';
 import { leftpad } from '/client/stats';
-import { uittoshooter } from '/client/uittoshooter'
+import { uittoshooter } from '/client/uittoshooter';
 
 uittoshooter.onCreateGame(() => {
   Meteor.call('getRoundInfo', (_, { roundEnds }) => {
-    const timer = new createjs.Text('', "10px monospace", "#ffffff");
+    const timer = new createjs.Text('', '10px monospace', '#ffffff');
     timer.x = 200;
     timer.lineHeight = 10;
     wholeStage.addChild(timer);

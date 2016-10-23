@@ -1,4 +1,4 @@
-import { uittoshooter } from '/client/uittoshooter'
+import { uittoshooter } from '/client/uittoshooter';
 require('createjs-easeljs');
 
 export const playerLayer = new createjs.Container();
@@ -20,6 +20,6 @@ function update() {
 }
 
 uittoshooter.onCreateGame(() => {
-  createjs.Ticker.addEventListener("tick", update);
+  createjs.Ticker.addEventListener('tick', update);
   document.body.appendChild(canvas);
 });

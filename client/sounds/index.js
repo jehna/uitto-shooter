@@ -7,12 +7,12 @@ const { b2Vec2 } = Common.Math;
 
 assets.installPlugin(createjs.Sound);
 
-assets.loadFile({ src:'/sounds/background.ogg', id: 'background' })
-assets.loadFile({ src:'/sounds/death-or-lose.ogg', id: 'death-or-lose' })
-assets.loadFile({ src:'/sounds/gunshot.ogg', id: 'gunshot' })
-assets.loadFile({ src:'/sounds/round-begins.ogg', id: 'round-begins' })
-assets.loadFile({ src:'/sounds/team-x-wins.ogg', id: 'team-x-wins' })
-assets.loadFile({ src:'/sounds/walking.ogg', id: 'walking' })
+assets.loadFile({ src:'/sounds/background.ogg', id: 'background' });
+assets.loadFile({ src:'/sounds/death-or-lose.ogg', id: 'death-or-lose' });
+assets.loadFile({ src:'/sounds/gunshot.ogg', id: 'gunshot' });
+assets.loadFile({ src:'/sounds/round-begins.ogg', id: 'round-begins' });
+assets.loadFile({ src:'/sounds/team-x-wins.ogg', id: 'team-x-wins' });
+assets.loadFile({ src:'/sounds/walking.ogg', id: 'walking' });
 
 const MAX_SOUND_DISTANCE = 100;
 export function playSoundAt(px, py, sound) {
@@ -28,7 +28,7 @@ export function playSoundAt(px, py, sound) {
 });*/
 
 function pauseSounds () {
-  createjs.Sound.muted = document.visibilityState !== 'visible'
+  createjs.Sound.muted = document.visibilityState !== 'visible';
 }
-document.addEventListener("visibilitychange", pauseSounds);
+document.addEventListener('visibilitychange', pauseSounds);
 pauseSounds();

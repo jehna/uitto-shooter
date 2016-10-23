@@ -1,9 +1,9 @@
-import { Log } from '/imports/api/log.js'
+import { Log } from '/imports/api/log.js';
 import { wholeStage, mapLayer } from '/client/stage.js';
-import { gameObjects } from '/imports/game.js'
+import { gameObjects } from '/imports/game.js';
 import { myID } from '/client/currentUser.js';
 import { getPlayerSpritesheet } from '/imports/GameObjects/Player.js';
-import { uittoshooter } from '/client/uittoshooter'
+import { uittoshooter } from '/client/uittoshooter';
 
 require('createjs-easeljs');
 
@@ -22,26 +22,26 @@ uittoshooter.onCreateGame(() => {
   Log.find({}).observe({
     added: function(data) {
       switch(data.type) {
-        case 'kill':
-          const by = gameObjects.Player[data.by];
-          const who = gameObjects.Player[data.who];
-          const byName = by.data.nick + (by.id === myID ? ' (you)' : '');
-          const whoName = who.data.nick + (who.id === myID ? ' (you)' : '');
-          addLogText(`${byName} ︻デ═一 ${whoName}`);
+      case 'kill':
+        const by = gameObjects.Player[data.by];
+        const who = gameObjects.Player[data.who];
+        const byName = by.data.nick + (by.id === myID ? ' (you)' : '');
+        const whoName = who.data.nick + (who.id === myID ? ' (you)' : '');
+        addLogText(`${byName} ︻デ═一 ${whoName}`);
 
-          const deadBody = new createjs.Sprite(getPlayerSpritesheet(data.team));
-          deadBody.gotoAndStop('dead');
-          deadBody.x = data.position.x;
-          deadBody.y = data.position.y;
-          deadBody.rotation = data.position.r * -180 / Math.PI + 90;
-          Meteor.setTimeout(() => {
-            mapLayer.addChild(deadBody);
-          }, 1000);
-          break;
-        default:
-          break;
+        const deadBody = new createjs.Sprite(getPlayerSpritesheet(data.team));
+        deadBody.gotoAndStop('dead');
+        deadBody.x = data.position.x;
+        deadBody.y = data.position.y;
+        deadBody.rotation = data.position.r * -180 / Math.PI + 90;
+        Meteor.setTimeout(() => {
+          mapLayer.addChild(deadBody);
+        }, 1000);
+        break;
+      default:
+        break;
       }
-      addLogText()
+      addLogText();
     }
   });
 });

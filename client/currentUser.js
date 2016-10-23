@@ -1,7 +1,7 @@
 import { Players } from '../imports/api/players';
 import { randomHex } from '../imports/helpers';
-import { gameObjects } from '/imports/game.js'
-import { uittoshooter } from '/client/uittoshooter'
+import { gameObjects } from '/imports/game.js';
+import { uittoshooter } from '/client/uittoshooter';
 
 export let myID;
 

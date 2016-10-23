@@ -2,7 +2,8 @@
   "name": "uitto-shooter",
   "private": true,
   "scripts": {
-    "start": "meteor run"
+    "start": "meteor run",
+    "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "createjs-easeljs": "^0.8.2",

@@ -1,5 +1,5 @@
 import { myID } from '/client/currentUser.js';
-import { uittoshooter } from '/client/uittoshooter'
+import { uittoshooter } from '/client/uittoshooter';
 
 export const Input = {
   keysDown: {},
@@ -18,7 +18,7 @@ export const Input = {
   getKeyDown(key) {
     return Input.keysDown[key];
   }
-}
+};
 
 const currMove = {x: 0, y: 0, r: 0};
 function move(key, x, y, r) {
@@ -62,6 +62,6 @@ uittoshooter.onCreateGame(() => {
     if (e.which === Input.keys.space) {
       Meteor.call('shoot', myID);
     }
-  })
+  });
 
 });

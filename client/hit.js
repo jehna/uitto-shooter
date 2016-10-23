@@ -1,5 +1,5 @@
-import { assets } from '/client/assets'
-import { uittoshooter } from '/client/uittoshooter'
+import { assets } from '/client/assets';
+import { uittoshooter } from '/client/uittoshooter';
 import { mapLayer } from '/client/stage.js';
 import { Hits } from '../imports/api/hits';
 import { gameObjects } from '/imports/game.js';

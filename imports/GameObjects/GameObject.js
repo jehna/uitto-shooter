@@ -1,13 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import { gameObjects } from '/imports/game.js'
-import { physics } from '/imports/physics.js'
-import { randomHex } from '/imports/helpers'
+import { gameObjects } from '/imports/game.js';
+import { physics } from '/imports/physics.js';
+import { randomHex } from '/imports/helpers';
 
 export default class GameObject {
   static create(Model, id, addProps = {}) {
     if (Meteor.isClient) return;
     let model = Object.assign({_id: id, x:-100, y: -100, r: 0, color: '#' + randomHex(6)}, addProps);
-    Model.insert(model)
+    Model.insert(model);
     new this(id, model);
   }
 
@@ -27,7 +27,7 @@ export default class GameObject {
     this.body = physics.CreateBody(this.bodyDef);
     this.body.SetUserData({ id: id, type: this.type });
     this.body.CreateFixture(this.fixture);
-    gameObjects[this.type] = gameObjects[this.type] || {}
+    gameObjects[this.type] = gameObjects[this.type] || {};
     gameObjects[this.type][id] = this;
     this.Model = Model;
     this.updateModel();
@@ -53,8 +53,8 @@ if (Meteor.isServer) {
   Meteor.setInterval(() => {
     if (removeBodies.length) {
       do {
-        physics.DestroyBody(removeBodies.pop())
-      } while (removeBodies.length)
+        physics.DestroyBody(removeBodies.pop());
+      } while (removeBodies.length);
     }
   }, 10000);
 }

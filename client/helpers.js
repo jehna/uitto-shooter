@@ -1,9 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { getCurrentUser } from '/client/currentUser.js';
-import { physics } from '/imports/physics.js'
+import { physics } from '/imports/physics.js';
 import { Common } from 'box2dweb';
 import { myID } from '/client/currentUser.js';
-import { rotate } from '/imports/helpers.js'
+import { rotate } from '/imports/helpers.js';
 const { b2Vec2 } = Common.Math;
 
 export function updateVisibility(sprite, alpha, spriteID) {

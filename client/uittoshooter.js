@@ -3,4 +3,4 @@ export const uittoshooter = {
   onCreateGame: function(cb) {
     uittoshooter._onCreateGame.push(cb);
   }
-}
+};

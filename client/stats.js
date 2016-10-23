@@ -1,7 +1,7 @@
 import { wholeStage } from '/client/stage.js';
-import { Input } from '/client/input'
-import { gameObjects, gameModes, currentGameMode } from '/imports/game'
-import { uittoshooter } from '/client/uittoshooter'
+import { Input } from '/client/input';
+import { gameObjects, gameModes, currentGameMode } from '/imports/game';
+import { uittoshooter } from '/client/uittoshooter';
 import { myID } from '/client/currentUser';
 
 export function leftpad (str, len, ch) {
@@ -25,23 +25,23 @@ function rightpad (s, n, c) {
   return s;
 }
 
-const stats = new createjs.Text('', "10px monospace", "#ffffff");
+const stats = new createjs.Text('', '10px monospace', '#ffffff');
 stats.x = 100;
 stats.lineHeight = 10;
 wholeStage.addChild(stats);
 
 function generateStatsString(players) {
-    let statsText = '';
-    statsText += leftpad('',34,'=') + '\n';
-    statsText += '|' + leftpad('',32,' ') + '|\n';
-    statsText += '| ' + rightpad('Player', 16, ' ') + leftpad('Kills', 7, ' ') + leftpad('Deaths', 7, ' ') + ('',28,' ') + '|\n';
-    players.forEach((player) => {
-      const playerName = player.data.nick + (player.data._id === myID ? ' (you)' : '');
-      statsText += '| ' + rightpad(playerName, 16, ' ') + leftpad(player.data.kills, 7, ' ') + leftpad(player.data.deaths, 7, ' ') + ('',28,' ') + '|\n';
-    });
-    statsText += '|' + leftpad('',32,' ') + '|\n';
-    statsText += leftpad('',34,'=') + '\n';
-    return statsText;
+  let statsText = '';
+  statsText += leftpad('',34,'=') + '\n';
+  statsText += '|' + leftpad('',32,' ') + '|\n';
+  statsText += '| ' + rightpad('Player', 16, ' ') + leftpad('Kills', 7, ' ') + leftpad('Deaths', 7, ' ') + ('',28,' ') + '|\n';
+  players.forEach((player) => {
+    const playerName = player.data.nick + (player.data._id === myID ? ' (you)' : '');
+    statsText += '| ' + rightpad(playerName, 16, ' ') + leftpad(player.data.kills, 7, ' ') + leftpad(player.data.deaths, 7, ' ') + ('',28,' ') + '|\n';
+  });
+  statsText += '|' + leftpad('',32,' ') + '|\n';
+  statsText += leftpad('',34,'=') + '\n';
+  return statsText;
 }
 
 function showStats() {

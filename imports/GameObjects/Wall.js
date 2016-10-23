@@ -1,10 +1,10 @@
-import GameObject from './GameObject.js'
+import GameObject from './GameObject.js';
 import { Common, Dynamics } from 'box2dweb';
 const { b2Vec2 } = Common.Math;
 const { b2BodyDef, b2Body, b2FixtureDef } = Dynamics;
 import { BodyDef, RectShape, FixtureFn } from '/imports/box2dBuilders';
-import { randomHex } from '/imports/helpers.js'
-import map1 from '/imports/maps/map1.json'
+import { randomHex } from '/imports/helpers.js';
+import map1 from '/imports/maps/map1.json';
 
 export default class Wall extends GameObject {
   constructor(id, position) {

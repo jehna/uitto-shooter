@@ -30,5 +30,5 @@ export function FixtureFn(density = 0.5, friction = 0.5, restitution = 0.5) {
     fixture.restitution = restitution;
     fixture.shape = shape;
     return fixture;
-  }
+  };
 }
