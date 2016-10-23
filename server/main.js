@@ -10,6 +10,7 @@ import Wall from '/imports/GameObjects/Wall.js';
 const Box2D = require('box2dweb');
 
 Meteor.startup(() => {
+  const roundEnds = Date.now() + 5 * 60 * 1000;
 
   Meteor.methods({
     move(mx, my, mr, idx) {
@@ -24,6 +25,11 @@ Meteor.startup(() => {
     },
     createPlayer(idx, nick, team) {
       Player.create(idx, nick, team);
+    },
+    getRoundInfo() {
+      return {
+        roundEnds
+      }
     }
   });
 

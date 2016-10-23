@@ -4,7 +4,7 @@ import { gameObjects, gameModes, currentGameMode } from '/imports/game'
 import { uittoshooter } from '/client/uittoshooter'
 import { myID } from '/client/currentUser';
 
-function leftpad (str, len, ch) {
+export function leftpad (str, len, ch) {
   str = String(str);
   var i = -1;
   if (!ch && ch !== 0) ch = ' ';
