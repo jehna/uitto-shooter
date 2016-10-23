@@ -29,7 +29,7 @@ if (Meteor.isClient) {
         },
         shootIdle: [7,7,'idle',7.5/createjs.Ticker.framerate],
         shootWalk: [7,7,'walk',7.5/createjs.Ticker.framerate],
-        death: [5,6,'dead',6/createjs.Ticker.framerate],
+        death: [5,6,'dead',7,5/createjs.Ticker.framerate],
         dead: [6],
       },
       frames: {width: 16, height: 16, regX: 8, regY: 8, spacing: 1},
@@ -116,11 +116,11 @@ export default class Player extends GameObject {
     if (!this.walking && velocity) {
       this.walking = true;
       this.walkingSound.paused = !this.walking;
-      this.playerIcon.gotoAndPlay('walk');
+      if (!this.dead) this.playerIcon.gotoAndPlay('walk');
     } else if (this.walking && !velocity) {
       this.walking = false;
       this.walkingSound.paused = !this.walking;
-      this.playerIcon.gotoAndPlay('idle');
+      if (!this.dead) this.playerIcon.gotoAndPlay('idle');
     }
 
     if (this.data._id === myID) {
