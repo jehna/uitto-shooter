@@ -8,3 +8,10 @@ export function objByUserData(d) {
       return players[d.id];
   }
 }
+
+export const gameModes = {
+  DEATHMATCH: (new (function DeathmatchMode(){})),
+  TEAM_DEATHMATCH: (new (function TeamDeathmatchMode(){}))
+}
+
+export const currentGameMode = gameModes.TEAM_DEATHMATCH;
